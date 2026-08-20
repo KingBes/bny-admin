@@ -1,0 +1,275 @@
+/* ====== 管理后台外壳 ====== */
+body {
+    margin: 0;
+}
+
+.admin-layout {
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.admin-side {
+    flex-shrink: 0;
+    height: 100vh;
+    background: var(--white);
+    border-right: 1px solid var(--gray-shallow);
+}
+
+/* 覆盖 bunny-ui nav-side 的 min-height:100vh，避免与容器叠加产生多余高度 */
+.admin-side [nav-side] {
+    min-height: 0;
+    height: 100%;
+}
+
+.bny-page .content {
+    overflow: hidden;
+}
+
+.admin-main {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    background: var(--white-shallow);
+}
+
+.admin-topbar {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 65px;
+    padding: 0 24px;
+    background: var(--white);
+    border-bottom: 1px solid var(--gray-shallow);
+}
+
+.admin-topbar-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+}
+
+.admin-menu-btn {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border: 1px solid var(--gray-shallow);
+    border-radius: var(--border-radius);
+    background: var(--white);
+    color: var(--black);
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.admin-menu-btn:hover {
+    border-color: var(--default-shallow);
+    background: var(--white-shallow);
+}
+
+.admin-top-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: 36px;
+    padding: 0 12px;
+    border: 1px solid var(--gray-shallow);
+    border-radius: var(--border-radius);
+    background: var(--white);
+    color: var(--black);
+    cursor: pointer;
+    text-decoration: none;
+    transition: var(--transition);
+}
+
+.admin-top-btn:hover {
+    border-color: var(--default-shallow);
+    background: var(--white-shallow);
+}
+
+.admin-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-left: auto;
+}
+
+.admin-theme-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border: 1px solid var(--gray-shallow);
+    border-radius: var(--border-radius);
+    background: var(--white);
+    color: var(--black);
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.admin-theme-btn:hover {
+    border-color: var(--default-shallow);
+    background: var(--white-shallow);
+}
+
+.admin-user-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: 36px;
+    padding: 0 12px;
+    border: 1px solid var(--gray-shallow);
+    border-radius: var(--border-radius);
+    background: var(--white);
+    color: var(--black);
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.admin-user-btn:hover {
+    border-color: var(--default-shallow);
+    background: var(--white-shallow);
+}
+
+/* 内容区不设边距，让多页签内容占满整个可视区域 */
+.admin-content {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* 内容页面容器：占满整个内容区 */
+.admin-page {
+    width: 100%;
+}
+
+.admin-content .admin-tap {
+    padding: 15px;
+    background: var(--white);
+}
+
+/* ====== 多页签内容区：撑满并内部滚动 ====== */
+.admin-tabs {
+    position: relative;
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: var(--white);
+}
+
+.admin-tabs>.head {
+    flex-shrink: 0;
+    border-radius: var(--border-radius);
+}
+
+.admin-tabs>.body {
+    flex: 1;
+    min-height: 0;
+    overflow: auto;
+    padding: 0;
+    border: 6px solid var(--white-shallow);
+    padding: 10px;
+}
+
+.admin-tabs>.body>div {
+    background: var(--white);
+}
+
+.admin-tabs>.head>li {
+    font-size: var(--font-size);
+}
+
+/* 增强选中态：加底色 + 全宽高亮下划线 */
+.admin-tabs>.head>li.this {
+    color: var(--default);
+    font-weight: var(--font-weight-bold);
+    background: var(--default-shallow);
+}
+
+.admin-tabs>.head>li.this::after {
+    width: 100%;
+    height: 3px;
+    background: var(--default);
+}
+
+/* 表格内操作链接 */
+.bny-table-ops a {
+    margin-right: 12px;
+    color: var(--default);
+    text-decoration: none;
+    transition: var(--transition-fast);
+}
+
+.bny-table-ops a:hover {
+    opacity: 0.75;
+}
+
+.bny-table-ops a.danger {
+    color: var(--red);
+}
+
+
+html.dark .icon-sun {
+    display: inline-block;
+}
+
+html.dark .icon-moon {
+    display: none;
+}
+
+html:not(.dark) .icon-sun {
+    display: none;
+}
+
+html:not(.dark) .icon-moon {
+    display: inline-block;
+}
+
+/* ====== 响应式适配 ====== */
+@media screen and (max-width: 768px) {
+    .admin-topbar {
+        padding: 0 12px;
+    }
+
+    /* 移动端：桌面侧边栏完全隐藏，改由顶栏按钮 + bny.page 弹出 */
+    .admin-side {
+        display: none;
+    }
+
+    .admin-menu-btn {
+        display: flex;
+    }
+
+    /* 窄屏用户按钮：隐藏文字，仅保留图标 */
+    .admin-user-btn span {
+        display: none;
+    }
+
+    .admin-user-btn {
+        padding: 0 10px;
+    }
+}
+
+/* 超窄屏：隐藏顶栏按钮文字，仅保留图标 */
+@media screen and (max-width: 480px) {
+    .admin-top-btn span {
+        display: none;
+    }
+
+    .admin-top-btn {
+        padding: 0 10px;
+    }
+}
+
+.bny-card {
+    margin-top: 0 !important;
+}

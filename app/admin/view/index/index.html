@@ -1,0 +1,79 @@
+<layout name="layout" />
+<div class="admin-page">
+    <div class="bny-row" grid-gap="18">
+
+    <!-- 欢迎卡片 -->
+    <div class="col-md12">
+        <div class="bny-card">
+            <div class="body">
+                <h2 class="title">{$welcome|default='欢迎回来'}</h2>
+                <p class="content">现在是 <span id="admin-clock">--:--:--</span>，欢迎回到 KLLXS 管理后台。</p>
+                <p class="content">系统：webman + ThinkPHP 模板 · PHP {:phpversion()} · 前端 bunny.ui</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 统计卡片 -->
+    <div class="col-md3 col-sm6">
+        <div class="bny-card">
+            <div class="body">
+                <div class="subtitle"><i class="bny-icon icon-edit"></i> 日记总数</div>
+                <div class="title">{$diary_count|default='0'}</div>
+                <div class="content">累计发布的日记篇数</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md3 col-sm6">
+        <div class="bny-card">
+            <div class="body">
+                <div class="subtitle"><i class="bny-icon icon-image"></i> 照片数量</div>
+                <div class="title">{$photo_count|default='0'}</div>
+                <div class="content">影集中收录的照片数</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md3 col-sm6">
+        <div class="bny-card">
+            <div class="body">
+                <div class="subtitle"><i class="bny-icon icon-home"></i> 访问量</div>
+                <div class="title">{$visit_count|default='0'}</div>
+                <div class="content">网站累计访问次数</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md3 col-sm6">
+        <div class="bny-card">
+            <div class="body">
+                <div class="subtitle"><i class="bny-icon icon-user"></i> 评论数</div>
+                <div class="title">{$comment_count|default='0'}</div>
+                <div class="content">收到的评论总数</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 最近动态 -->
+    <div class="col-md12">
+        <div class="bny-card">
+            <div class="head"><span>最近动态</span></div>
+            <div class="body">
+                <p class="content">此处预留为最近动态列表，后续接入数据后展示。</p>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+
+<script>
+    (function () {
+        var el = document.getElementById('admin-clock');
+        if (!el) return;
+        function tick() {
+            var d = new Date();
+            var p = function (n) { return (n < 10 ? '0' : '') + n; };
+            el.textContent = d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()) +
+                ' ' + p(d.getHours()) + ':' + p(d.getMinutes()) + ':' + p(d.getSeconds());
+        }
+        tick();
+        setInterval(tick, 1000);
+    })();
+</script>

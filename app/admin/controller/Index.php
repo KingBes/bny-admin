@@ -1,0 +1,33 @@
+<?php
+
+namespace app\admin\controller;
+
+use app\BaseController;
+
+class Index extends BaseController
+{
+    public function index(): string
+    {
+        $this->assign([
+            'title' => '仪表盘',
+            'welcome' => '欢迎回来，KLLXS',
+            'diary_count' => 0,
+            'photo_count' => 0,
+            'visit_count' => 0,
+            'comment_count' => 0,
+        ]);
+        return $this->fetch();
+    }
+
+    public function menu(): string
+    {
+        $toggle = "";
+        if (request()->get("toggle")) {
+            $toggle = "nav-toggle";
+        }
+        $this->assign([
+            'toggle' => $toggle,
+        ]);
+        return $this->fetch();
+    }
+}

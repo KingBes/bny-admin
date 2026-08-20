@@ -1,0 +1,11 @@
+{
+    "name": "bny-admin",
+    "define": [
+        "extension=curl",
+        "extension=gd",
+        "extension=fileinfo",
+        "extension=mbstring",
+        "extension=openssl",
+        "extension=zip"
+    ]
+}

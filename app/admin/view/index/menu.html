@@ -1,0 +1,31 @@
+<div hx-ext="bny-nav" nav-side {$toggle} nav-color="white">
+    <div class="head">
+        <a class="logo-box" href="/admin">
+            <div class="logo">
+                <img src="/icon.png" alt="logo">
+            </div>
+            <span>后台管理系统</span>
+        </a>
+    </div>
+    <ul class="menu">
+        <li class="show">
+            <a class="trigger" href="/admin" tip="仪表盘" admin-tab data-url="/admin" data-title="仪表盘">
+                <i class="bny-icon icon-home"></i>
+                <span>仪表盘</span>
+            </a>
+        </li>
+        <li>
+            <div class="trigger" tip="系统设置">
+                <i class="bny-icon icon-setting"></i>
+                <span>系统设置</span>
+                <i class="bny-icon icon-arrowright"></i>
+            </div>
+            <ul class="sub-menu">
+                <li><a class="trigger" href="{:url('admin.system.users')}" admin-tab
+                        data-url="{:url('admin.system.users')}" data-title="用户管理"><span>用户管理</span></a></li>
+                <li><a class="trigger" href="{:url('admin.system.settings')}" admin-tab
+                        data-url="{:url('admin.system.settings')}" data-title="站点设置"><span>站点设置</span></a></li>
+            </ul>
+        </li>
+    </ul>
+</div>
