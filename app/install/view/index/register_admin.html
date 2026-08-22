@@ -1,0 +1,39 @@
+<!-- 步骤3：注册超级管理员 -->
+<div class="step-panel" id="step-3">
+    <div class="form-result" id="admin-result">
+        <notempty name="error"><span class="badge" style="color:var(--red)">{$error}</span></notempty>
+    </div>
+    <form id="admin-form" hx-ext="bny-validate" hx-post="{:url('install.index.register_admin')}" hx-swap="outerHTML"
+        hx-target="#step-3">
+        <div class="form-item">
+            <label>管理员用户名</label>
+            <div class="input-group">
+                <input class="bny-input" name="username" placeholder="请填写管理员用户名" required
+                    value="{$form.username|default=''}" valid-rules="regexp:^[^\s]+$,min:2,max:20"
+                    valid-msg-required="请填写管理员用户名" valid-msg-pattern="用户名不能包含空格" valid-msg-min="用户名长度不能少于 2 位"
+                    valid-msg-max="用户名长度不能超过 20 位">
+            </div>
+        </div>
+        <div class="form-item">
+            <label>管理员密码</label>
+            <div class="input-group">
+                <input class="bny-input" name="password" type="password" minlength="6" required
+                    value="{$form.password|default=''}" valid-msg-required="请填写管理员密码" valid-msg-min="密码长度不能少于 6 位"
+                    placeholder="请填写管理员密码">
+            </div>
+        </div>
+        <div class="form-item">
+            <label>确认密码</label>
+            <div class="input-group">
+                <input class="bny-input" name="confirm_password" type="password" required
+                    value="{$form.confirm_password|default=''}" valid-rules="equals:password"
+                    valid-msg-required="请再次填写管理员密码" valid-msg-equals="两次输入的密码不一致" placeholder="请再次填写管理员密码">
+            </div>
+        </div>
+        <div class="step-actions">
+            <button type="button" class="bny-btn" btn-color="blue" hx-get="{:url('install.index.register_sql')}"
+                hx-swap="outerHTML" hx-target="#step-3">上一步</button>
+            <button type="submit" class="bny-btn" btn-color="green">注册并完成安装</button>
+        </div>
+    </form>
+</div>

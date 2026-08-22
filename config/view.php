@@ -22,4 +22,6 @@ return [
     'taglib_begin'  => '<',
     // 标签库标签结束标记
     'taglib_end'    => '>',
+    // 内置标签库（无前缀使用），内置 cx + 自定义 app\TagLib
+    'taglib_build_in' => 'Cx,app\TagLib',
 ];

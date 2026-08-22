@@ -1,0 +1,36 @@
+<!-- 步骤1：环境检查 -->
+<div class="step-panel" id="step-1">
+    <!-- 整体结果提示，复用 .form-result 样式 -->
+    <div class="form-result">
+        <eq name="envList.ok" value="1">
+            <span class="badge" style="color:var(--green)">环境检查全部通过，可进入下一步</span>
+            <else />
+            <span class="badge" style="color:var(--red)">存在未通过项，请先处理后重试</span>
+        </eq>
+    </div>
+
+    <div class="env-list">
+        <each name="envList['items']" key="k" value="v">
+            <div class="env-item {$v.ok ? 'ok' : 'fail'}">
+                <span class="name">{$v.name}</span>
+                <span class="msg">{$v.msg}</span>
+                <span class="badge">
+                    <eq name="$v.ok" value="1">
+                        通过
+                        <else />
+                        不通过
+                    </eq>
+                </span>
+            </div>
+        </each>
+    </div>
+
+    <div class="step-actions">
+        <eq name="envList.ok" value="1">
+            <button type="button" class="bny-btn" hx-get="{:url('install.index.register_sql')}" hx-target="#step-1"
+                hx-swap="outerHTML">下一步</button>
+            <else />
+            <button type="button" class="bny-btn" disabled>下一步</button>
+        </eq>
+    </div>
+</div>

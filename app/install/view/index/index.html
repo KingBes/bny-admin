@@ -1,0 +1,29 @@
+<layout name="layout" />
+<div class="bny-card install-card">
+    <div class="install-steps step-1" id="install-steps">
+        <div class="step">
+            <span class="dot"><span class="num">1</span><span class="ok">✓</span></span>
+            <span class="label">环境检查</span>
+        </div>
+        <div class="step">
+            <span class="dot"><span class="num">2</span><span class="ok">✓</span></span>
+            <span class="label">数据库配置</span>
+        </div>
+        <div class="step">
+            <span class="dot"><span class="num">3</span><span class="ok">✓</span></span>
+            <span class="label">注册管理员</span>
+        </div>
+        <div class="step">
+            <span class="dot"><span class="num">4</span><span class="ok">✓</span></span>
+            <span class="label">完成</span>
+        </div>
+    </div>
+    <div hx-get="{:url('install.index.check_env')}" id="form-check" hx-trigger="load">
+        <div class="bny-skeleton-card">
+            <div class="bny-skeleton bny-skeleton-image"></div>
+            <div class="bny-skeleton bny-skeleton-title"></div>
+            <div class="bny-skeleton bny-skeleton-text"></div>
+            <div class="bny-skeleton bny-skeleton-text short"></div>
+        </div>
+    </div>
+</div>

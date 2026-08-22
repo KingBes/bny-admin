@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>安装向导 - BnyAdmin</title>
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+    <!-- 主题：记忆 > 系统偏好 > 亮色兜底 -->
+    <script>
+        (function () {
+            var t;
+            try { t = localStorage.getItem('bny-theme'); } catch (e) { }
+            if (!t) {
+                t = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+            }
+            if (t === 'dark') document.documentElement.classList.add('dark');
+        })();
+    </script>
+    <!-- bunny.ui -->
+    <link rel="stylesheet" href="/bunny/bunny.css">
+    <style>
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100%;
+        }
+
+        body {
+            background-color: var(--gray-shallow);
+            color: var(--black);
+        }
+
+        /* ===== 右上角主题切换 ===== */
+        .install-theme-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 38px;
+            height: 38px;
+            border: 1px solid var(--gray-shallow);
+            border-radius: var(--border-radius);
+            background: var(--white);
+            color: var(--black-middle);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .install-theme-btn:hover {
+            border-color: var(--default-shallow);
+            background: var(--white-shallow);
+        }
+
+        html.dark .icon-sun {
+            display: inline-block;
+        }
+
+        html.dark .icon-moon {
+            display: none;
+        }
+
+        html:not(.dark) .icon-sun {
+            display: none;
+        }
+
+        html:not(.dark) .icon-moon {
+            display: inline-block;
+        }
+
+        /* ===== 页面容器与品牌区 ===== */
+        .install-wrap {
+            max-width: 720px;
+            margin: 0 auto;
+            padding: 48px 16px 64px;
+        }
+
+        .install-brand {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 14px;
+            margin-bottom: 26px;
+        }
+
+        .install-brand .logo {
+            width: 46px;
+            height: 46px;
+            border-radius: var(--border-radius);
+        }
+
+        .install-brand h1 {
+            margin: 0;
+            font-size: var(--font-size-24);
+            line-height: var(--line-height-heading);
+            color: var(--black);
+        }
+
+        .install-brand p {
+            margin: 2px 0 0;
+            font-size: var(--font-size-sm);
+            color: var(--black-shallow);
+        }
+
+        /* ===== 卡片 ===== */
+        .install-card {
+            padding: 30px 36px 26px;
+        }
+
+        /* ===== 自研步骤条（状态由容器类 step-1..step-4 纯 CSS 控制）===== */
+        .install-steps {
+            display: flex;
+            margin-bottom: 30px;
+        }
+
+        .install-steps .step {
+            flex: 1;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* 连接线：位于相邻两个圆点之间 */
+        .install-steps .step:not(:first-child)::before {
+            content: '';
+            position: absolute;
+            top: 14px;
+            left: calc(-50% + 21px);
+            right: calc(50% + 21px);
+            height: 2px;
+            background: var(--gray-middle);
+            transition: var(--transition);
+        }
+
+        .install-steps .dot {
+            position: relative;
+            z-index: 1;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-semibold);
+            background: var(--white);
+            color: var(--black-shallow);
+            border: 2px solid var(--gray-middle);
+            transition: var(--transition);
+        }
+
+        .install-steps .dot .ok {
+            display: none;
+        }
+
+        .install-steps .label {
+            font-size: var(--font-size-sm);
+            color: var(--black-shallow);
+        }
+
+        /* 已完成步骤：连接线与圆点变绿，圆点显示对勾 */
+        .install-steps.step-2 .step:nth-child(-n+1)::before,
+        .install-steps.step-3 .step:nth-child(-n+2)::before,
+        .install-steps.step-4 .step:nth-child(-n+3)::before {
+            background: var(--green);
+        }
+
+        .install-steps.step-2 .step:nth-child(-n+1) .dot,
+        .install-steps.step-3 .step:nth-child(-n+2) .dot,
+        .install-steps.step-4 .step:nth-child(-n+3) .dot {
+            background: var(--green);
+            border-color: var(--green);
+            color: var(--white-common);
+        }
+
+        .install-steps.step-2 .step:nth-child(-n+1) .dot .num,
+        .install-steps.step-3 .step:nth-child(-n+2) .dot .num,
+        .install-steps.step-4 .step:nth-child(-n+3) .dot .num {
+            display: none;
+        }
+
+        .install-steps.step-2 .step:nth-child(-n+1) .dot .ok,
+        .install-steps.step-3 .step:nth-child(-n+2) .dot .ok,
+        .install-steps.step-4 .step:nth-child(-n+3) .dot .ok {
+            display: inline;
+        }
+
+        /* 当前步骤：主题蓝高亮 */
+        .install-steps.step-1 .step:nth-child(1) .dot,
+        .install-steps.step-2 .step:nth-child(2) .dot,
+        .install-steps.step-3 .step:nth-child(3) .dot,
+        .install-steps.step-4 .step:nth-child(4) .dot {
+            background: var(--blue);
+            border-color: var(--blue);
+            color: var(--white-common);
+            box-shadow: 0 0 0 4px var(--blue-alpha-10);
+        }
+
+        .install-steps.step-1 .step:nth-child(1) .label,
+        .install-steps.step-2 .step:nth-child(2) .label,
+        .install-steps.step-3 .step:nth-child(3) .label,
+        .install-steps.step-4 .step:nth-child(4) .label {
+            color: var(--black);
+            font-weight: var(--font-weight-semibold);
+        }
+
+        /* ===== 步骤面板与操作区 ===== */
+        .step-panel {
+            margin-top: 4px;
+        }
+
+        .step-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 24px;
+            padding-top: 18px;
+            border-top: 1px solid var(--gray-shallow);
+        }
+
+        .form-result {
+            margin-bottom: 14px;
+        }
+
+        /* ===== 环境检查列表 ===== */
+        .env-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .env-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border: 1px solid var(--gray-shallow);
+            border-radius: var(--border-radius);
+            background: var(--white-middle);
+        }
+
+        .env-item .name {
+            font-weight: var(--font-weight-medium);
+            color: var(--black);
+        }
+
+        .env-item .msg {
+            flex: 1;
+            font-size: var(--font-size-sm);
+            color: var(--black-shallow);
+        }
+
+        .env-item .badge {
+            font-size: var(--font-size-xs);
+            padding: 2px 10px;
+            border-radius: var(--border-radius-full);
+            white-space: nowrap;
+        }
+
+        .env-item.ok .badge {
+            color: var(--green);
+            background: var(--green-alpha-10);
+        }
+
+        .env-item.fail .badge {
+            color: var(--red);
+            background: var(--red-alpha-10);
+        }
+
+        .env-item.fail {
+            border-color: var(--red-shallow);
+        }
+
+        /* ===== 完成页 ===== */
+        .install-done {
+            text-align: center;
+            padding: 26px 0 8px;
+        }
+
+        .install-done .done-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            background: var(--green);
+            color: var(--white-common);
+            font-size: 36px;
+            font-weight: var(--font-weight-bold);
+            margin-bottom: 18px;
+        }
+
+        .install-done h2 {
+            margin: 0 0 10px;
+            color: var(--black);
+        }
+
+        .install-done p {
+            margin: 0 0 26px;
+            color: var(--black-shallow);
+        }
+
+        /* ===== 响应式 ===== */
+        @media (max-width: 640px) {
+            .install-wrap {
+                padding-top: 32px;
+            }
+
+            .install-card {
+                padding: 22px 18px 18px;
+            }
+
+            .install-brand h1 {
+                font-size: var(--font-size-20);
+            }
+
+            .install-steps .label {
+                font-size: var(--font-size-xs);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 右上角明暗切换 -->
+    <button class="install-theme-btn" id="theme-toggle" type="button" title="切换主题">
+        <i class="bny-icon icon-bulb-fill icon-sun"></i>
+        <i class="bny-icon icon-bulb icon-moon"></i>
+    </button>
+
+    <div class="install-wrap">
+        <!-- 品牌区 -->
+        <div class="install-brand">
+            <img class="logo" src="/icon.png" alt="BnyAdmin">
+            <div>
+                <h1>安装向导</h1>
+                <p>BnyAdmin 后台管理系统 · 按步骤完成初始化</p>
+            </div>
+        </div>
+        {__CONTENT__}
+    </div>
+
+    <script src="/bunny/bunny.js"></script>
+    <script>
+        (function () {
+            // 主题切换
+            document.getElementById('theme-toggle').addEventListener('click', function () {
+                var isDark = document.documentElement.classList.toggle('dark');
+                try { localStorage.setItem('bny-theme', isDark ? 'dark' : 'light'); } catch (e) { }
+            });
+
+            // 步骤条：跟随当前渲染的步骤面板自动同步
+            // 成功切换：htmx 替换为下一步片段 → 同步前进；
+            // 校验失败/后端失败：仍停留在原步骤 → 不前进。
+            function syncSteps() {
+                var el = document.getElementById('install-steps');
+                if (!el) return;
+                for (var i = 1; i <= 4; i++) {
+                    if (document.getElementById('step-' + i)) {
+                        el.className = 'install-steps step-' + i;
+                        return;
+                    }
+                }
+            }
+            document.addEventListener('htmx:afterSwap', syncSteps);
+        })();
+    </script>
+</body>
+
+</html>
