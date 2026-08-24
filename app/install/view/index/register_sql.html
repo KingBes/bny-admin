@@ -3,7 +3,7 @@
     <div class="form-result" id="db-result">
         <notempty name="error"><span class="badge" style="color:var(--red)">{$error}</span></notempty>
     </div>
-    <form hx-ext="bny-validate" hx-post="{:url('install.index.register_sql')}" hx-target="#step-2"
+    <form hx-ext="bny-form" hx-post="{:url('install.index.register_sql')}" hx-target="#step-2"
         hx-swap="outerHTML">
         <div class="form-item">
             <label>主机地址</label>

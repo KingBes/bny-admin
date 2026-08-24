@@ -128,12 +128,6 @@ class Index extends BaseController
         return $this->fetch('register_admin', ['form' => [], 'error' => '']);
     }
 
-    #[Annotation(["title" => "完成安装"])]
-    public function complete(): string
-    {
-        return $this->fetch();
-    }
-
     /**
      * 安装锁文件路径（位于项目根目录）
      * @return string
@@ -144,17 +138,8 @@ class Index extends BaseController
     }
 
     /**
-     * 是否已完成安装（存在安装锁文件）
-     * @return bool
-     */
-    private function isInstalled(): bool
-    {
-        return is_file($this->lockPath());
-    }
-
-    /**
      * 校验数据库连接配置
-     * @param array $cfg 配置项（hostname/port/database/username/password/prefix）
+     * @param array $cfg 配置项
      * @return void
      * @throws \Exception
      */
@@ -288,7 +273,6 @@ class Index extends BaseController
 
         // 待写入的顶层 DB_* 键
         $new = [
-            'DB_DRIVER'  => 'mysql',
             'DB_TYPE'    => 'mysql',
             'DB_HOST'    => $cfg['hostname'],
             'DB_NAME'    => $cfg['database'],
@@ -297,6 +281,8 @@ class Index extends BaseController
             'DB_PORT'    => $cfg['port'] ?? '3306',
             'DB_CHARSET' => 'utf8mb4',
             'DB_PREFIX'  => $prefix,
+            'DEFAULT_LANG' => 'zh-cn',
+            'APP_DEBUG'    => 'false',
         ];
 
         // 读取现有内容（若已存在则逐行合并，仅替换/追加顶层 DB_* 键，保留其它行与 [SECTION]）
@@ -447,17 +433,18 @@ class Index extends BaseController
         $hash   = password_hash($password, PASSWORD_DEFAULT);
         $pdo    = $this->pdo($cfg);
 
-        // 插入管理员账号
-        try {
+        // 覆盖式写入管理员：已存在则更新密码/昵称/状态（重复安装不报错），否则插入
+        $sel = $pdo->prepare("SELECT `id` FROM `{$prefix}admin` WHERE `username` = ? LIMIT 1");
+        $sel->execute([$username]);
+        $row = $sel->fetch();
+        if ($row) {
+            $pdo->prepare("UPDATE `{$prefix}admin` SET `password` = ?, `nickname` = ?, `status` = 1, `update_time` = ? WHERE `id` = ?")
+                ->execute([$hash, $username, $time, $row['id']]);
+        } else {
             $stmt = $pdo->prepare(
                 "INSERT INTO `{$prefix}admin` (`username`,`password`,`nickname`,`rid`,`status`,`create_time`,`update_time`) VALUES (?,?,?,?,?,?,?)"
             );
             $stmt->execute([$username, $hash, $username, 0, 1, $time, $time]);
-        } catch (\Throwable $e) {
-            if (stripos($e->getMessage(), 'Duplicate') !== false || stripos($e->getMessage(), '1062') !== false) {
-                throw new \Exception('用户名已存在');
-            }
-            throw new \Exception('创建管理员账号失败：' . $e->getMessage());
         }
 
         // 最后一步：写入安装锁

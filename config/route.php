@@ -52,4 +52,11 @@ return [
     'request_cache_tag'     => '',
     // API版本header变量
     'api_version'           => 'Api-Version',
+    // 路由中间件
+    'middleware'            => [
+        // 安装守护：未安装时其余页面跳转 /install
+        \app\middleware\CheckInstall::class,
+        // 管理员权限守护：未登录时跳转 /login
+        // \app\middleware\Admin::class,
+    ],
 ];

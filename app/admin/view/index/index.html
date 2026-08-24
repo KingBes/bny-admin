@@ -1,79 +1,193 @@
-<layout name="layout" />
-<div class="admin-page">
-    <div class="bny-row" grid-gap="18">
+<!-- 头部 -->
+<include file="public/head" />
+<div class="admin-layout">
+    <!-- 侧边导航 -->
+    <aside class="admin-side" hx-get="{:url('admin.index.menu',['toggle'=>'true'])}" hx-trigger="load"></aside>
+    <!-- 主内容区 -->
+    <div class="admin-main">
+        <!-- 顶栏 -->
+        <header class="admin-topbar">
+            <div class="admin-topbar-left">
+                <button class="admin-menu-btn" hx-ext="bny-page" hx-get="{:url('admin.index.menu')}" hx-trigger="click"
+                    page-width="240px" page-height="100%" title="false" page-anim="left" page-offset="left" spa-skip
+                    page-shade title="展开菜单">
+                    <i class="bny-icon icon-menu"></i>
+                </button>
+                <a class="admin-top-btn" href="/" target="_blank" tip="前台">
+                    <i class="bny-icon icon-dribbble"></i>
+                </a>
+            </div>
+            <div class="admin-actions">
+                <button class="admin-theme-btn" id="theme-toggle" spa-skip title="切换主题">
+                    <i class="bny-icon icon-bulb-fill icon-sun"></i>
+                    <i class="bny-icon icon-bulb icon-moon"></i>
+                </button>
+                <div hx-ext="bny-dropdown">
+                    <button class="admin-user-btn" spa-skip>
+                        <i class="bny-icon icon-user"></i>
+                        <span>管理员</span>
+                    </button>
+                    <div class="bny-dropdown">
+                        <div style="padding:6px">
+                            <a class="trigger" href="javascript:void(0)"
+                                style="display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:var(--border-radius-sm);color:var(--black-middle);text-decoration:none">
+                                <i class="bny-icon icon-user"></i><span>个人中心</span>
+                            </a>
+                            <a class="trigger" href="/admin/login"
+                                style="display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:var(--border-radius-sm);color:var(--black-middle);text-decoration:none">
+                                <i class="bny-icon icon-setting"></i><span>退出登录</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
 
-    <!-- 欢迎卡片 -->
-    <div class="col-md12">
-        <div class="bny-card">
-            <div class="body">
-                <h2 class="title">{$welcome|default='欢迎回来'}</h2>
-                <p class="content">现在是 <span id="admin-clock">--:--:--</span>，欢迎回到 KLLXS 管理后台。</p>
-                <p class="content">系统：webman + ThinkPHP 模板 · PHP {:phpversion()} · 前端 bunny.ui</p>
+        <!-- 多页签内容区 -->
+        <main class="admin-content">
+            <div class="admin-tabs" id="admin-tabs" hx-ext="bny-tab" tab-mode="scroll" tab-index="0">
+                <ul class="head">
+                    <li class="this" data-url="{:url('admin.index.home')}" data-title="仪表盘">仪表盘</li>
+                </ul>
+                <div class="body">
+                    <div class="show">
+                        <div hx-get="{:url('admin.index.home')}" hx-trigger="load" hx-swap="outerHTML"></div>
+                    </div>
+                </div>
             </div>
-        </div>
-    </div>
+            <div class="admin-tap">
+                Bny.ui 后台管理系统
+            </div>
+        </main>
 
-    <!-- 统计卡片 -->
-    <div class="col-md3 col-sm6">
-        <div class="bny-card">
-            <div class="body">
-                <div class="subtitle"><i class="bny-icon icon-edit"></i> 日记总数</div>
-                <div class="title">{$diary_count|default='0'}</div>
-                <div class="content">累计发布的日记篇数</div>
-            </div>
-        </div>
-    </div>
-    <div class="col-md3 col-sm6">
-        <div class="bny-card">
-            <div class="body">
-                <div class="subtitle"><i class="bny-icon icon-image"></i> 照片数量</div>
-                <div class="title">{$photo_count|default='0'}</div>
-                <div class="content">影集中收录的照片数</div>
-            </div>
-        </div>
-    </div>
-    <div class="col-md3 col-sm6">
-        <div class="bny-card">
-            <div class="body">
-                <div class="subtitle"><i class="bny-icon icon-home"></i> 访问量</div>
-                <div class="title">{$visit_count|default='0'}</div>
-                <div class="content">网站累计访问次数</div>
-            </div>
-        </div>
-    </div>
-    <div class="col-md3 col-sm6">
-        <div class="bny-card">
-            <div class="body">
-                <div class="subtitle"><i class="bny-icon icon-user"></i> 评论数</div>
-                <div class="title">{$comment_count|default='0'}</div>
-                <div class="content">收到的评论总数</div>
-            </div>
-        </div>
-    </div>
-
-    <!-- 最近动态 -->
-    <div class="col-md12">
-        <div class="bny-card">
-            <div class="head"><span>最近动态</span></div>
-            <div class="body">
-                <p class="content">此处预留为最近动态列表，后续接入数据后展示。</p>
-            </div>
-        </div>
     </div>
 </div>
-</div>
-
+<!-- 多页签：菜单点击打开/切换标签 + 标签与侧边菜单双向联动 -->
 <script>
     (function () {
-        var el = document.getElementById('admin-clock');
-        if (!el) return;
-        function tick() {
-            var d = new Date();
-            var p = function (n) { return (n < 10 ? '0' : '') + n; };
-            el.textContent = d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()) +
-                ' ' + p(d.getHours()) + ':' + p(d.getMinutes()) + ':' + p(d.getSeconds());
+        function adminOpenTab(url, title) {
+            if (!url) return;
+            var tab = document.getElementById('admin-tabs');
+            if (!tab || !htmx) return;
+            var head = tab.querySelector('.head');
+            // 已打开：切换到该标签
+            var lis = head.querySelectorAll('li');
+            for (var i = 0; i < lis.length; i++) {
+                if (lis[i].getAttribute('data-url') === url) {
+                    lis[i].click();
+                    return;
+                }
+            }
+            // 新增标签
+            var li = document.createElement('li');
+            li.setAttribute('hx-get', url);
+            li.setAttribute('tab-closable', '');
+            li.setAttribute('this', '');
+            li.setAttribute('data-url', url);
+            li.textContent = title || '页面';
+            head.appendChild(li);
+            htmx.process(li);
         }
-        tick();
-        setInterval(tick, 1000);
+        // 同步侧边菜单高亮：将匹配 url 的菜单项置 active，其余移除
+        function syncMenu(url) {
+            if (!url) return;
+            var side = document.querySelector('.admin-side [nav-side]');
+            if (!side) return;
+            var links = side.querySelectorAll('[admin-tab]');
+            for (var i = 0; i < links.length; i++) {
+                if (links[i].getAttribute('data-url') === url) {
+                    links[i].classList.add('active');
+                } else {
+                    links[i].classList.remove('active');
+                }
+            }
+        }
+        // 侧边菜单委托：仅处理标记了 admin-tab 的叶子链接
+        document.addEventListener('click', function (e) {
+            var link = e.target.closest('[admin-tab]');
+            if (!link) return;
+            e.preventDefault();
+            adminOpenTab(link.getAttribute('data-url'), link.getAttribute('data-title'));
+        });
+        // 标签切换 → 同步侧边菜单高亮
+        var tabs = document.getElementById('admin-tabs');
+        if (tabs) {
+            tabs.addEventListener('click', function (e) {
+                var li = e.target.closest('.head > li');
+                if (li) syncMenu(li.getAttribute('data-url'));
+            });
+        }
+        // 侧边菜单加载完成后，同步当前选中标签对应的菜单高亮
+        var aside = document.querySelector('.admin-side');
+        if (aside) {
+            aside.addEventListener('htmx:afterSwap', function () {
+                var act = document.querySelector('#admin-tabs .head > li.this');
+                if (act) syncMenu(act.getAttribute('data-url'));
+            });
+        }
+
+        // ===== 多页签状态持久化：刷新后恢复打开的标签与当前选中 =====
+        function saveTabs() {
+            var tab = document.getElementById('admin-tabs');
+            if (!tab) return;
+            var head = tab.querySelector('.head');
+            var open = [], active = '';
+            var lis = head.querySelectorAll('li');
+            for (var i = 0; i < lis.length; i++) {
+                var u = lis[i].getAttribute('data-url');
+                if (!u) continue;
+                open.push({ url: u, title: (lis[i].textContent || '').replace(/\s+/g, ' ').trim() });
+                if (lis[i].classList.contains('this')) active = u;
+            }
+            try { sessionStorage.setItem('admin-tabs', JSON.stringify({ open: open, active: active })); } catch (e) { }
+        }
+
+        function restoreTabs() {
+            var tab = document.getElementById('admin-tabs');
+            if (!tab || !htmx) return;
+            var head = tab.querySelector('.head');
+            var data;
+            try { data = JSON.parse(sessionStorage.getItem('admin-tabs')); } catch (e) { }
+            if (!data || !data.open || !data.open.length) return;
+            var existing = {};
+            var lis = head.querySelectorAll('li');
+            for (var i = 0; i < lis.length; i++) existing[lis[i].getAttribute('data-url')] = 1;
+            // 重建打开过的标签（内容懒加载，点击才请求）
+            data.open.forEach(function (t) {
+                if (existing[t.url]) return;
+                var li = document.createElement('li');
+                li.setAttribute('hx-get', t.url);
+                li.setAttribute('tab-closable', '');
+                li.setAttribute('data-url', t.url);
+                li.textContent = t.title || '页面';
+                head.appendChild(li);
+                htmx.process(li);
+            });
+            // 激活上次选中的标签
+            var target = null;
+            var lis2 = head.querySelectorAll('li');
+            for (var j = 0; j < lis2.length; j++) {
+                if (lis2[j].getAttribute('data-url') === data.active) target = lis2[j];
+            }
+            if (target) target.click();
+        }
+
+        // 监听标签增删/切换，自动保存状态（带防抖）
+        if (tabs) {
+            var head = tabs.querySelector('.head');
+            var timer = null;
+            if (window.MutationObserver && head) {
+                new MutationObserver(function () {
+                    clearTimeout(timer);
+                    timer = setTimeout(saveTabs, 200);
+                }).observe(head, { childList: true, subtree: true, attributes: true, attributeFilter: ['class'] });
+            }
+        }
+
+        // 页面完全加载后再恢复（确保 htmx/bny-tab 已完成初始化）
+        if (document.readyState === 'complete') setTimeout(restoreTabs, 0);
+        else window.addEventListener('load', function () { setTimeout(restoreTabs, 0); });
     })();
 </script>
+<!-- 底部 -->
+<include file="public/foot" />

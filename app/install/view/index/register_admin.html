@@ -3,7 +3,7 @@
     <div class="form-result" id="admin-result">
         <notempty name="error"><span class="badge" style="color:var(--red)">{$error}</span></notempty>
     </div>
-    <form id="admin-form" hx-ext="bny-validate" hx-post="{:url('install.index.register_admin')}" hx-swap="outerHTML"
+    <form id="admin-form" hx-ext="bny-form" hx-post="{:url('install.index.register_admin')}" hx-swap="outerHTML"
         hx-target="#step-3">
         <div class="form-item">
             <label>管理员用户名</label>

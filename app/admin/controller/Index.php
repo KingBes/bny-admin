@@ -8,6 +8,11 @@ class Index extends BaseController
 {
     public function index(): string
     {
+        return $this->fetch();
+    }
+
+    public function home(): string
+    {
         $this->assign([
             'title' => '仪表盘',
             'welcome' => '欢迎回来，KLLXS',

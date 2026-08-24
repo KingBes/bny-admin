@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bny 后台管理系统</title>
+    <link rel="shortcut icon" href="bunny.png" type="image/x-icon">
+    <!-- 主题：记忆 > 系统偏好 > 亮色兜底 -->
+    <script>
+        (function () {
+            var t;
+            try { t = localStorage.getItem('bny-theme'); } catch (e) { }
+            if (!t) {
+                t = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+            }
+            if (t === 'dark') document.documentElement.classList.add('dark');
+        })();
+    </script>
+    <!-- bunny.ui -->
+    <link rel="stylesheet" href="/bunny/bunny.css">
+    <script src="/bunny/bunny.js"></script>
+    <!-- 自定义 -->
+    <link rel="stylesheet" href="/admin/css/site.css">
+</head>
+
+<body hx-indicator="#load-health">

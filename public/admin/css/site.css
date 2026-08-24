@@ -273,3 +273,17 @@ html:not(.dark) .icon-moon {
 .bny-card {
     margin-top: 0 !important;
 }
+
+/* 通用读条 */
+#load-health {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 99999;
+    display: none;
+}
+
+.htmx-request#load-health {
+    display: block;
+}
