@@ -3,7 +3,9 @@
 namespace app\admin\controller;
 
 use app\BaseController;
+use Kingbes\Annotation\Annotation;
 
+#[Annotation(["title" => "首页", "auth" => false])]
 class Index extends BaseController
 {
     public function index(): string
@@ -15,7 +17,7 @@ class Index extends BaseController
     {
         $this->assign([
             'title' => '仪表盘',
-            'welcome' => '欢迎回来，KLLXS',
+            'welcome' => '欢迎回来,KLLXS',
             'diary_count' => 0,
             'photo_count' => 0,
             'visit_count' => 0,

@@ -8,6 +8,7 @@ use think\App;
 use think\exception\ValidateException;
 use think\Validate;
 use think\facade\View;
+use think\Response;
 
 /**
  * 控制器基础类
@@ -116,5 +117,41 @@ abstract class BaseController
     protected function assign(string|array $name, mixed $value = null): void
     {
         View::assign($name, $value);
+    }
+
+    /**
+     * 操作成功
+     *
+     * @param array $data
+     * @param string $msg
+     * @param string $url
+     * @return Response
+     */
+    protected function success(array $data, string $msg = '操作成功', string $url = ""): Response
+    {
+        $url = $url !== "" ? (string)url($url) : "";
+        return json([
+            "code" => 0,
+            "msg" => $msg,
+            "url" => $url,
+            ...$data
+        ]);
+    }
+
+    /**
+     * 操作失败
+     *
+     * @param string $msg
+     * @param string $url
+     * @return Response
+     */
+    protected function error(string $msg = "操作失败", string $url = ""): Response
+    {
+        $url = $url !== "" ? (string)url($url) : "";
+        return json([
+            "code" => 3,
+            "msg" => $msg,
+            "url" => $url,
+        ]);
     }
 }

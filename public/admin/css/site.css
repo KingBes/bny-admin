@@ -1,6 +1,16 @@
 /* ====== 管理后台外壳 ====== */
+html,
 body {
     margin: 0;
+    padding: 0;
+    min-height: 100%;
+}
+
+body {
+    background-color: var(--white-shallow);
+    color: var(--black);
+    font-size: var(--font-size);
+    -webkit-font-smoothing: antialiased;
 }
 
 .admin-layout {
@@ -286,4 +296,241 @@ html:not(.dark) .icon-moon {
 
 .htmx-request#load-health {
     display: block;
+}
+
+/* ====== 登录页 ====== */
+.auth {
+    min-height: 100vh;
+    display: flex;
+}
+
+/* ---- 左侧品牌区（温暖中性，留白克制） ---- */
+.auth-aside {
+    position: relative;
+    flex: 1 1 44%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 52px 56px;
+    overflow: hidden;
+    color: var(--white);
+    background:
+        radial-gradient(120% 120% at 100% 0%, var(--default-middle) 0%, transparent 55%),
+        linear-gradient(155deg, var(--default) 0%, var(--default-middle) 100%);
+}
+
+/* 极淡的品牌点缀圆，克制不抢眼 */
+.auth-aside::after {
+    content: '';
+    position: absolute;
+    width: 420px;
+    height: 420px;
+    right: -160px;
+    bottom: -160px;
+    border-radius: 50%;
+    border: 1px solid var(--white-alpha-12);
+    background: radial-gradient(circle, var(--white-alpha-08), transparent 70%);
+}
+
+.auth-brand {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.auth-brand img {
+    width: 28px;
+    height: 28px;
+}
+
+.auth-brand .brand-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 46px;
+    height: 46px;
+    border-radius: 13px;
+    background: var(--white-common);
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.16);
+}
+
+.auth-brand b {
+    font-size: var(--font-size-24);
+    font-weight: var(--font-weight-semibold);
+    letter-spacing: 0.5px;
+}
+
+.auth-aside-body {
+    position: relative;
+    z-index: 1;
+    max-width: 420px;
+}
+
+.auth-aside-body h1 {
+    margin: 0 0 16px;
+    font-size: 30px;
+    font-weight: var(--font-weight-bold);
+    line-height: 1.35;
+    letter-spacing: -0.01em;
+    color: var(--white);
+}
+
+.auth-aside-body p {
+    margin: 0;
+    font-size: var(--font-size);
+    line-height: 1.8;
+    color: var(--white-alpha-85);
+}
+
+.auth-aside-foot {
+    position: relative;
+    z-index: 1;
+    font-size: var(--font-size-xs);
+    color: var(--white-alpha-50);
+}
+
+/* ---- 右侧表单区 ---- */
+.auth-main {
+    flex: 1 1 56%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 48px 32px;
+}
+
+.auth-panel {
+    width: 100%;
+    max-width: 400px;
+    padding: 40px 40px 32px;
+    background: var(--white);
+    border: 1px solid var(--black-alpha-05);
+    border-radius: var(--border-radius-15);
+    box-shadow: var(--box-shadow-055);
+    transition: var(--transition);
+}
+
+.auth-head {
+    margin-bottom: 32px;
+}
+
+.auth-head h2 {
+    margin: 0 0 10px;
+    font-size: 24px;
+    font-weight: var(--font-weight-bold);
+    letter-spacing: -0.01em;
+    color: var(--black);
+}
+
+.auth-head p {
+    margin: 0;
+    font-size: var(--font-size-sm);
+    color: var(--black-shallow);
+}
+
+/* 错误提示（克制） */
+.auth-result {
+    margin-bottom: 20px;
+}
+
+.auth-result .badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: var(--font-size-xs);
+    padding: 9px 12px;
+    border-radius: var(--border-radius);
+    color: var(--red);
+    background: var(--red-alpha-10);
+    border: 1px solid var(--red-shallow);
+}
+
+/* 表单 */
+.auth-form .form-item {
+    margin-bottom: 20px;
+}
+
+.auth-form label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--black);
+}
+
+/* 让输入框撑满输入组高度，与前后缀对齐，不压缩其样式 */
+.auth-form .bny-input-group .bny-input {
+    height: 100%;
+}
+
+.auth-extra {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 2px 0 24px;
+}
+
+.auth-extra label {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    margin: 0;
+    cursor: pointer;
+    font-size: var(--font-size-sm);
+    color: var(--black-middle);
+}
+
+.auth-submit {
+    margin-top: 4px;
+}
+
+.auth-submit .bny-btn {
+    width: 100%;
+    height: 44px;
+    font-size: var(--font-size);
+    letter-spacing: 1px;
+    font-weight: var(--font-weight-medium);
+}
+
+.auth-foot {
+    margin-top: 28px;
+    text-align: center;
+    font-size: var(--font-size-xs);
+    color: var(--black-shallow);
+}
+
+/* ===== 右上角主题切换 ===== */
+.auth-theme-btn {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border: 1px solid var(--black-alpha-08);
+    border-radius: var(--border-radius);
+    background: var(--white);
+    color: var(--black-middle);
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.auth-theme-btn:hover {
+    border-color: var(--default-shallow);
+    color: var(--default);
+}
+
+/* ===== 响应式：窄屏隐藏左侧品牌区 ===== */
+@media (max-width: 900px) {
+    .auth-aside {
+        display: none;
+    }
+
+    .auth-main {
+        padding: 40px 24px;
+    }
 }

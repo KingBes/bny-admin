@@ -17,7 +17,7 @@ return [
     // 合并路由规则
     'route_rule_merge'      => false,
     // 路由是否完全匹配
-    'route_complete_match'  => false,
+    'route_complete_match'  => true,
     // 去除斜杠
     'remove_slash'          => false,
     // 默认的路由变量规则
@@ -57,6 +57,6 @@ return [
         // 安装守护：未安装时其余页面跳转 /install
         \app\middleware\CheckInstall::class,
         // 管理员权限守护：未登录时跳转 /login
-        // \app\middleware\Admin::class,
+        \app\middleware\Admin::class,
     ],
 ];
