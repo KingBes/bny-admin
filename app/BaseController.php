@@ -127,7 +127,7 @@ abstract class BaseController
      * @param string $url
      * @return Response
      */
-    protected function success(array $data, string $msg = '操作成功', string $url = ""): Response
+    protected function success(array $data = [], string $msg = '操作成功', string $url = ""): Response
     {
         $url = $url !== "" ? (string)url($url) : "";
         return json([

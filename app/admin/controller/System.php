@@ -3,7 +3,10 @@
 namespace app\admin\controller;
 
 use app\BaseController;
+use Kingbes\Annotation\Annotation;
+use app\model\Config;
 
+#[Annotation(["title" => "系统管理", "icon" => "icon-setting"])]
 class System extends BaseController
 {
     public function users(): string
@@ -18,7 +21,8 @@ class System extends BaseController
         return $this->fetch();
     }
 
-    public function settings(): string
+    #[Annotation(["title" => "基础设置", "page" => true, "auth" => true])]
+    public function base(): string
     {
         return $this->fetch();
     }

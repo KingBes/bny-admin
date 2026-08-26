@@ -8,7 +8,7 @@ use think\Model;
 /**
  * @mixin \think\Model
  */
-class Admin extends Model
+class Config extends Model
 {
     //
 }

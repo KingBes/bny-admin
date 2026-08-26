@@ -1,0 +1,121 @@
+<!-- 附件选择器：工具栏 + 可勾选网格 -->
+<div class="attach-select" id="attach-select" data-target="{$target}" data-max="{$max}" data-type-filter="{$type}">
+    <!-- 工具栏：搜索 + 全选 + 计数 + 确认 -->
+    <div class="attach-toolbar">
+        <div class="bny-input-group attach-search">
+            <span class="bny-input-prefix"><i class="bny-icon icon-search"></i></span>
+            <input class="bny-input" id="attach-search" type="text" placeholder="搜索文件名" />
+        </div>
+        <label class="attach-all">
+            <input type="checkbox" class="bny-checkbox" id="attach-all" />
+            <span>全选</span>
+        </label>
+        <span class="attach-count"><i class="bny-icon icon-check-circle"></i> 已选 <b id="attach-count">0</b></span>
+        <button class="bny-btn" id="attach-confirm" type="button" btn-color="blue">确认选择</button>
+    </div>
+
+    <!-- 附件网格 -->
+    <div class="attach-grid" id="attach-grid">
+        <label class="attach-item" data-name="banner-home.png" data-type="image">
+            <input class="bny-checkbox" type="checkbox" value="/upload/demo/banner-home.png" />
+            <span class="attach-thumb">
+                <img src="https://picsum.photos/400/300" alt="banner-home.png" loading="lazy" />
+            </span>
+            <span class="attach-meta">
+                <em class="attach-name">banner-home.png</em>
+                <small class="attach-time">2026-08-20 10:24</small>
+            </span>
+            <i class="bny-icon icon-check attach-hook"></i>
+        </label>
+
+        <label class="attach-item" data-name="product-01.jpg" data-type="image">
+            <input class="bny-checkbox" type="checkbox" value="/upload/demo/product-01.jpg" />
+            <span class="attach-thumb">
+                <img src="https://picsum.photos/200/300" alt="product-01.jpg" loading="lazy" />
+            </span>
+            <span class="attach-meta">
+                <em class="attach-name">product-01.jpg</em>
+                <small class="attach-time">2026-08-19 16:40</small>
+            </span>
+            <i class="bny-icon icon-check attach-hook"></i>
+        </label>
+
+        <label class="attach-item" data-name="hero-bg.png" data-type="image">
+            <input class="bny-checkbox" type="checkbox" value="/upload/demo/hero-bg.png" />
+            <span class="attach-thumb">
+                <img src="https://picsum.photos/300/300" alt="hero-bg.png" loading="lazy" />
+            </span>
+            <span class="attach-meta">
+                <em class="attach-name">hero-bg.png</em>
+                <small class="attach-time">2026-08-18 09:12</small>
+            </span>
+            <i class="bny-icon icon-check attach-hook"></i>
+        </label>
+
+        <label class="attach-item" data-name="demo-video.mp4" data-type="video">
+            <input class="bny-checkbox" type="checkbox" value="/upload/demo/demo-video.mp4" />
+            <span class="attach-thumb">
+                <i class="bny-icon icon-video"></i>
+            </span>
+            <span class="attach-meta">
+                <em class="attach-name">demo-video.mp4</em>
+                <small class="attach-time">2026-08-17 14:05</small>
+            </span>
+            <i class="bny-icon icon-check attach-hook"></i>
+        </label>
+
+        <label class="attach-item" data-name="用户手册.docx" data-type="word">
+            <input class="bny-checkbox" type="checkbox" value="/upload/demo/用户手册.docx" />
+            <span class="attach-thumb">
+                <i class="bny-icon icon-file-word-fill"></i>
+            </span>
+            <span class="attach-meta">
+                <em class="attach-name">用户手册.docx</em>
+                <small class="attach-time">2026-08-15 11:30</small>
+            </span>
+            <i class="bny-icon icon-check attach-hook"></i>
+        </label>
+
+        <label class="attach-item" data-name="数据报表.xlsx" data-type="excel">
+            <input class="bny-checkbox" type="checkbox" value="/upload/demo/数据报表.xlsx" />
+            <span class="attach-thumb">
+                <i class="bny-icon icon-file-excel-fill"></i>
+            </span>
+            <span class="attach-meta">
+                <em class="attach-name">数据报表.xlsx</em>
+                <small class="attach-time">2026-08-12 09:50</small>
+            </span>
+            <i class="bny-icon icon-check attach-hook"></i>
+        </label>
+
+        <label class="attach-item" data-name="产品介绍.pdf" data-type="pdf">
+            <input class="bny-checkbox" type="checkbox" value="/upload/demo/产品介绍.pdf" />
+            <span class="attach-thumb">
+                <i class="bny-icon icon-file-text-fill"></i>
+            </span>
+            <span class="attach-meta">
+                <em class="attach-name">产品介绍.pdf</em>
+                <small class="attach-time">2026-08-10 08:20</small>
+            </span>
+            <i class="bny-icon icon-check attach-hook"></i>
+        </label>
+
+        <label class="attach-item" data-name="source-code.zip" data-type="zip">
+            <input class="bny-checkbox" type="checkbox" value="/upload/demo/source-code.zip" />
+            <span class="attach-thumb">
+                <i class="bny-icon icon-file-unknown-fill"></i>
+            </span>
+            <span class="attach-meta">
+                <em class="attach-name">source-code.zip</em>
+                <small class="attach-time">2026-08-08 17:45</small>
+            </span>
+            <i class="bny-icon icon-check attach-hook"></i>
+        </label>
+    </div>
+
+    <!-- 空状态 -->
+    <div class="attach-empty" id="attach-empty" style="display:none;">
+        <i class="bny-icon icon-folder-open"></i>
+        <p>没有找到匹配的附件</p>
+    </div>
+</div>

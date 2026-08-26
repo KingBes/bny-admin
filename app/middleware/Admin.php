@@ -29,7 +29,8 @@ class Admin
      */
     protected function isLoginPage(Request $request): bool
     {
-        return strtolower((string) $request->controller()) === 'login';
+        return strtolower((string) $request->controller()) === 'login'
+            && strtolower((string) $request->action()) !== 'logout';
     }
 
     /**
@@ -62,7 +63,7 @@ class Admin
         // 未登录
         $loginUrl = (string)(url("admin.login.index"));
         if ($request->isAjax()) {
-            return json(['code' => 2, 'msg' => '请先登录', 'url' => $loginUrl]);
+            return json(['code' => 3, 'msg' => '请先登录', 'url' => $loginUrl]);
         }
         return redirect($loginUrl);
     }

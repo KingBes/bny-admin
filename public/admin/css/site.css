@@ -81,6 +81,28 @@ body {
     background: var(--white-shallow);
 }
 
+.admin-refresh-btn,
+.admin-fullscreen-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border: 1px solid var(--gray-shallow);
+    border-radius: var(--border-radius);
+    background: var(--white);
+    color: var(--black);
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.admin-refresh-btn:hover,
+.admin-fullscreen-btn:hover {
+    border-color: var(--default-shallow);
+    background: var(--white-shallow);
+    color: var(--default);
+}
+
 .admin-top-btn {
     display: flex;
     align-items: center;
@@ -196,6 +218,18 @@ body {
 
 .admin-tabs>.head>li {
     font-size: var(--font-size);
+    color: var(--black-shallow);
+    background: var(--white-common);
+    border: 1px solid var(--gray-shallow);
+    border-bottom: none;
+    border-radius: var(--border-radius) var(--border-radius) 0 0;
+    transition: color var(--transition-fast), background-color var(--transition-fast), border-color var(--transition-fast);
+}
+
+.admin-tabs>.head>li:not(.this):hover {
+    color: var(--default);
+    background: var(--white-shallow);
+    border-color: var(--default-shallow);
 }
 
 /* 增强选中态：加底色 + 全宽高亮下划线 */
@@ -203,6 +237,7 @@ body {
     color: var(--default);
     font-weight: var(--font-weight-bold);
     background: var(--default-shallow);
+    border-color: var(--default-shallow);
 }
 
 .admin-tabs>.head>li.this::after {
@@ -522,6 +557,196 @@ html:not(.dark) .icon-moon {
 .auth-theme-btn:hover {
     border-color: var(--default-shallow);
     color: var(--default);
+}
+
+/* ====== 附件选择器 ====== */
+.attach-select {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    height: 100%;
+    min-height: 0;
+    padding: 12px;
+}
+
+/* 工具栏：搜索 + 全选 + 计数 + 确认 */
+.attach-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-shrink: 0;
+}
+
+.attach-search {
+    flex: 1;
+    min-width: 0;
+}
+
+.attach-all {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: var(--font-size-sm);
+    color: var(--black-middle);
+    cursor: pointer;
+    white-space: nowrap;
+    user-select: none;
+    transition: var(--transition-fast);
+}
+
+.attach-all:hover {
+    color: var(--default);
+}
+
+.attach-count {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: var(--font-size-sm);
+    color: var(--black-shallow);
+    white-space: nowrap;
+}
+
+.attach-count i {
+    color: var(--default);
+}
+
+.attach-count b {
+    color: var(--default);
+    font-weight: var(--font-weight-semibold);
+}
+
+/* 附件网格：自适应列 + 内部滚动 */
+.attach-grid {
+    flex: 1;
+    min-height: 0;
+    overflow: auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(128px, 1fr));
+    gap: 12px;
+    align-content: start;
+    padding: 2px 2px 8px;
+}
+
+/* 附件卡片 */
+.attach-item {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 10px;
+    border: 1.5px solid var(--gray-shallow);
+    border-radius: var(--border-radius);
+    background: var(--white);
+    cursor: pointer;
+    transition: var(--transition-fast);
+}
+
+.attach-item:hover {
+    border-color: var(--default-shallow);
+    box-shadow: var(--box-shadow-005);
+}
+
+/* 选中态：主题色描边 + 右上角对勾 */
+.attach-item.checked {
+    border-color: var(--default);
+    box-shadow: 0 0 0 1.5px var(--default);
+}
+
+.attach-item .bny-checkbox {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    z-index: 1;
+    background: var(--white);
+    border-radius: var(--border-radius-sm);
+}
+
+/* 缩略图/文件图标区 */
+.attach-thumb {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    border-radius: calc(var(--border-radius) - 2px);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--white-shallow);
+}
+
+.attach-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.attach-thumb>i {
+    font-size: 34px;
+    color: var(--black-shallow);
+}
+
+.attach-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding-top: 4px;
+}
+
+.attach-name {
+    display: block;
+    font-size: var(--font-size-sm);
+    font-style: normal;
+    color: var(--black);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.attach-time {
+    font-size: var(--font-size-xs);
+    color: var(--black-shallow);
+}
+
+/* 选中角标 */
+.attach-hook {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--default);
+    color: var(--white-common);
+    font-size: 12px;
+    display: none;
+    align-items: center;
+    justify-content: center;
+}
+
+.attach-item.checked .attach-hook {
+    display: flex;
+}
+
+/* 空状态 */
+.attach-empty {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    color: var(--black-shallow);
+}
+
+.attach-empty i {
+    font-size: 48px;
+    opacity: 0.35;
+}
+
+.attach-empty p {
+    margin: 0;
+    font-size: var(--font-size-sm);
 }
 
 /* ===== 响应式：窄屏隐藏左侧品牌区 ===== */

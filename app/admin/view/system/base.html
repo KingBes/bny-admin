@@ -1,0 +1,82 @@
+<div class="admin-page">
+    <form hx-ext="bny-form">
+        <div class="bny-row" grid-gap="18">
+            <!-- 左列：基础设置（手机端自动变一列） -->
+            <div class="col-xs12 col-sm6">
+                <div class="bny-card">
+                    <div class="head">
+                        <span><i class="bny-icon icon-setting"></i> 基础设置</span>
+                    </div>
+                    <div class="body">
+                        <div class="form-item">
+                            <label class="bny-label">站点logo</label>
+                            <div class="bny-input-group" hx-ext="bny-upload">
+                                <span class="bny-input-prefix">
+                                    <div class="bny-image-group" img-preview-size="24"></div>
+                                </span>
+                                <input class="bny-input" type="text" name="site_logo" id="site_logo" value=""
+                                    placeholder="请输入站点logo路径" />
+                                <span class="bny-input-suffix bny-btn-group">
+                                    <button class="bny-btn" type="button" color="blue" hx-ext="bny-page"
+                                        hx-get="{:url('admin.attachment.select')}?target=site_logo&max=1&type=image"
+                                        page-shade title="附件">选择</button>
+                                    <button class="bny-btn" btn-model="border">上传</button>
+
+                                </span>
+                            </div>
+                        </div>
+                        <div class="form-item">
+                            <label class="bny-label">站点名称</label>
+                            <div class="bny-input-group">
+                                <input class="bny-input" type="text" name="site_name" value="" placeholder="请输入站点名称" />
+                            </div>
+                        </div>
+                        <div class="form-item">
+                            <label class="bny-label">关键词</label>
+                            <div class="bny-input-group">
+                                <input class="bny-input" type="text" name="site_keywords" value=""
+                                    placeholder="请输入关键词" />
+                            </div>
+                        </div>
+                        <div class="form-item" style="margin-bottom:0;">
+                            <label class="bny-label">站点描述</label>
+                            <div class="bny-input-group">
+                                <textarea class="bny-textarea" rows="4" name="site_desc"
+                                    placeholder="请输入站点描述"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右列：其他设置（手机端自动变一列） -->
+            <div class="col-xs12 col-sm6">
+                <div class="bny-card">
+                    <div class="head">
+                        <span><i class="bny-icon icon-control"></i> 其他设置</span>
+                    </div>
+                    <div class="body">
+                        <div class="form-item">
+                            <label class="bny-label">备案号</label>
+                            <div class="bny-input-group">
+                                <input class="bny-input" type="text" name="icp_record" value="" placeholder="请输入备案号" />
+                            </div>
+                        </div>
+                        <div class="form-item">
+                            <label class="bny-label">脚本代码</label>
+                            <div class="bny-input-group">
+                                <textarea class="bny-textarea" rows="6" name="site_script"
+                                    placeholder="请输入脚本代码"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 提交按钮：单独占一整行 -->
+            <div class="col-xs12 col-sm12">
+                <button class="bny-btn" type="submit">保存设置</button>
+            </div>
+        </div>
+    </form>
+</div>

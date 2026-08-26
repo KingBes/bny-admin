@@ -13,12 +13,19 @@
                     page-shade title="展开菜单">
                     <i class="bny-icon icon-menu"></i>
                 </button>
+                <button class="admin-refresh-btn" spa-skip tip="刷新">
+                    <i class="bny-icon icon-sync"></i>
+                </button>
                 <a class="admin-top-btn" href="/" target="_blank" tip="前台">
                     <i class="bny-icon icon-dribbble"></i>
                 </a>
             </div>
             <div class="admin-actions">
-                <button class="admin-theme-btn" id="theme-toggle" spa-skip title="切换主题">
+                <button class="admin-fullscreen-btn" id="fullscreen-toggle" spa-skip tip="全屏">
+                    <i class="bny-icon icon-fullscreen"></i>
+                    <i class="bny-icon icon-fullscreen-exit" style="display:none;"></i>
+                </button>
+                <button class="admin-theme-btn" id="theme-toggle" spa-skip tip="主题">
                     <i class="bny-icon icon-bulb-fill icon-sun"></i>
                     <i class="bny-icon icon-bulb icon-moon"></i>
                 </button>
@@ -28,15 +35,18 @@
                         <span>管理员</span>
                     </button>
                     <div class="bny-dropdown">
-                        <div style="padding:6px">
-                            <a class="trigger" href="javascript:void(0)"
-                                style="display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:var(--border-radius-sm);color:var(--black-middle);text-decoration:none">
-                                <i class="bny-icon icon-user"></i><span>个人中心</span>
-                            </a>
-                            <a class="trigger" href="/admin/login"
-                                style="display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:var(--border-radius-sm);color:var(--black-middle);text-decoration:none">
-                                <i class="bny-icon icon-setting"></i><span>退出登录</span>
-                            </a>
+                        <div hx-ext="bny-menu" menu-mode="vertical">
+                            <div class="item">
+                                <div class="trigger" admin-tab data-url="{:url('admin.admin.mine')}" data-title="个人中心">
+                                    <span>个人中心</span>
+                                </div>
+                            </div>
+                            <div class="item">
+                                <div class="trigger" hx-post="{:url('admin.login.logout')}" hx-trigger="click"
+                                    hx-swap="none">
+                                    <span>退出登录</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -108,6 +118,13 @@
             if (!link) return;
             e.preventDefault();
             adminOpenTab(link.getAttribute('data-url'), link.getAttribute('data-title'));
+        });
+        // 刷新按钮：重新触发当前激活页签的 htmx 请求
+        document.addEventListener('click', function (e) {
+            var btn = e.target.closest('.admin-refresh-btn');
+            if (!btn) return;
+            var act = document.querySelector('#admin-tabs .head > li.this');
+            if (act) act.click();
         });
         // 标签切换 → 同步侧边菜单高亮
         var tabs = document.getElementById('admin-tabs');

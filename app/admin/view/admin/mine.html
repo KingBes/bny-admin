@@ -1,0 +1,61 @@
+<div class="admin-page">
+    <div class="bny-card">
+        <div class="head">
+            <span><i class="bny-icon icon-setting"></i> 个人中心</span>
+        </div>
+        <div class="body" style="max-width: 600px;">
+            <form id="mine-form" hx-ext="bny-form" hx-post="{:url('admin.admin.mine')}" hx-swap="none" novalidate>
+                <div class="form-item">
+                    <label class="bny-label">旧密码</label>
+                    <div class="input-group">
+                        <input class="bny-input" type="password" name="old_password"
+                            placeholder="请输入旧密码" autocomplete="current-password" required minlength="6"
+                            valid-msg-required="请输入旧密码" valid-msg-min="旧密码长度不能少于 6 位" />
+                    </div>
+                </div>
+                <div class="form-item">
+                    <label class="bny-label">新密码</label>
+                    <div class="input-group">
+                        <input class="bny-input" type="password" name="password" id="mine-new-pwd"
+                            placeholder="请输入新密码（至少 6 位）" autocomplete="new-password" required minlength="6"
+                            valid-msg-required="请输入新密码" valid-msg-min="新密码长度不能少于 6 位" />
+                    </div>
+                </div>
+                <div class="form-item">
+                    <label class="bny-label">确认新密码</label>
+                    <div class="input-group">
+                        <input class="bny-input" type="password" name="confirm_password"
+                            placeholder="请再次输入新密码" autocomplete="new-password" required
+                            valid-rules="equals:password" valid-msg-required="请再次输入新密码"
+                            valid-msg-equals="两次输入的新密码不一致" />
+                    </div>
+                </div>
+                <div class="form-item">
+                    <div class="input-group">
+                        <button class="bny-btn" type="submit">保存设置</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<!-- 修改成功后清空表单 -->
+<script>
+    (function () {
+        var form = document.getElementById('mine-form');
+        if (!form) return;
+        document.body.addEventListener('htmx:afterRequest', function (e) {
+            if (!form.contains(e.target)) return;
+            var xhr = e.detail.xhr;
+            if (!xhr) return;
+            var ct = (xhr.getResponseHeader('content-type') || '').toLowerCase();
+            if (ct.indexOf('application/json') === -1) return;
+            var data;
+            try { data = JSON.parse(xhr.responseText); } catch (err) { return; }
+            if (!data || data.code !== 0) return;
+            var inputs = form.querySelectorAll('input[type="password"]');
+            for (var i = 0; i < inputs.length; i++) inputs[i].value = '';
+            form.querySelector('[name="old_password"]').focus();
+        });
+    })();
+</script>

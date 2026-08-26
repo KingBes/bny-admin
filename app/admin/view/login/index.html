@@ -56,9 +56,8 @@
                     <label for="login-password">验证</label>
                     <div class="bny-input-group" form-size="lg">
                         <span class="bny-input-prefix"><i class="bny-icon icon-safetycertificate-f"></i></span>
-                        <input class="bny-input" id="login-password" name="password" type="password"
-                            placeholder="请输入验证码" autocomplete="current-password" minlength="6" required value=""
-                            valid-msg-required="请输入验证码">
+                        <input class="bny-input" id="login-password" name="captcha" type="text" placeholder="请输入验证码"
+                            required valid-msg-required="请输入验证码">
                         <a href="javascript:;">
                             <img src="{:url('admin.login.captcha')}" alt="captcha"
                                 onclick="this.src=`{:url('admin.login.captcha')}`+`?${Math.random()}`">
@@ -68,7 +67,8 @@
 
                 <div class="auth-extra">
                     <label>
-                        <input type="checkbox" name="remember" class="bny-checkbox" value="1" />
+                        <input type="checkbox" name="remember" class="bny-checkbox" value="1" {$form.remember
+                            ? 'checked' : '' } />
                         <span>记住我</span>
                     </label>
                 </div>
@@ -83,6 +83,13 @@
     </main>
 </div>
 <script>
+    // 检测路径是否在登录页面，如果不是登录页面，重定向到登录页面
+    (function () {
+        const thenUrl = `{:url('admin.login.index')}`;
+        if (window.location.pathname !== thenUrl) {
+            window.location.href = thenUrl;
+        }
+    })();
 
     // 密码显示/隐藏
     (function () {

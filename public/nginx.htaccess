@@ -1,0 +1,3 @@
+if (!-f $request_filename) {
+   		rewrite  ^(.*)$  /index.php?s=/$1  last;
+    }
