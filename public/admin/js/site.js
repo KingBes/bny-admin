@@ -80,13 +80,12 @@
         var search = box.querySelector('.attach-search input');
         var all = box.querySelector('.attach-all input');
         var countEl = box.querySelector('.attach-count b');
-        var confirmBtn = box.querySelector('.attach-confirm');
+        var confirmBtn = box.querySelector('#attach-confirm');
         var empty = box.querySelector('.attach-empty');
         var items = Array.prototype.slice.call(grid.querySelectorAll('.attach-item'));
 
-        var max = parseInt(box.getAttribute('data-max') || '0', 10);
+        var max = parseInt(box.getAttribute('data-max') || '1', 10);
         var target = box.getAttribute('data-target') || '';
-        var typeFilter = box.getAttribute('data-type-filter') || '';
 
         function visible() {
             return items.filter(function (it) { return it.style.display !== 'none'; });
@@ -102,16 +101,7 @@
             if (all) all.checked = n > 0 && n === vis.length;
         }
 
-        // 类型过滤（如 type=image 时隐藏非图片）
-        if (typeFilter) {
-            for (var f = 0; f < items.length; f++) {
-                if (items[f].getAttribute('data-type') !== typeFilter) {
-                    items[f].style.display = 'none';
-                }
-            }
-            if (empty) empty.style.display = visible().length ? 'none' : 'flex';
-            allChecked();
-        }
+        allChecked();
 
         // 勾选：高亮 + 计数，单选/上限控制
         grid.addEventListener('change', function (e) {
@@ -186,7 +176,17 @@
                 if (target) {
                     var field = document.getElementById(target);
                     if (field) {
-                        field.value = max === 1 ? picked[0] : picked.join(',');
+                        if (max === 1) {
+                            // 单选：替换
+                            field.value = picked[0];
+                        } else {
+                            // 多选：与已有值合并去重（已有在前）
+                            var arr = ((field.value || '').trim() ? field.value.trim().split(',') : []);
+                            picked.forEach(function (pv) {
+                                if (arr.indexOf(pv) === -1) arr.push(pv);
+                            });
+                            field.value = arr.join(',');
+                        }
                         // 通知父页面表单感知变化
                         try {
                             field.dispatchEvent(new Event('input', { bubbles: true }));
@@ -212,11 +212,32 @@
         }
     }
 
+    // 兜底：bny-page 等以 innerHTML 方式注入的内容不会派发 htmx:load，
+    // 用 MutationObserver 监听 DOM 变化，出现 .attach-select 即初始化
+    function watchBody() {
+        if (!window.MutationObserver || !document.body) return;
+        new MutationObserver(function (mutations) {
+            for (var i = 0; i < mutations.length; i++) {
+                var nodes = mutations[i].addedNodes;
+                for (var j = 0; j < nodes.length; j++) {
+                    var n = nodes[j];
+                    if (!n || n.nodeType !== 1) continue;
+                    tryInit(n);
+                }
+            }
+        }).observe(document.body, { childList: true, subtree: true });
+    }
+
+    function boot() {
+        tryInit(document);
+        watchBody();
+    }
+
     document.addEventListener('htmx:load', function (e) { tryInit(e.target); });
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', function () { tryInit(document); });
+        document.addEventListener('DOMContentLoaded', boot);
     } else {
-        tryInit(document);
+        boot();
     }
 })();
 
@@ -301,5 +322,323 @@
         document.addEventListener('DOMContentLoaded', function () { tryBind(document); });
     } else {
         tryBind(document);
+    }
+})();
+
+// 上传弹层：点击/拖拽选择 → 图片可压缩（1~10 强度）→ 上传接口
+(function () {
+    var UP_KEY = 'data-upload-inited';
+
+    function fileIcon(name) {
+        var ext = (name.split('.').pop() || '').toLowerCase();
+        if (/^(png|jpe?g|gif|webp|bmp|svg|ico|avif)$/.test(ext)) return 'icon-image';
+        if (/^(mp4|mov|avi|mkv|webm)$/.test(ext)) return 'icon-video';
+        if (/^(zip|rar|7z|tar|gz)$/.test(ext)) return 'icon-file-unknown-fill';
+        if (/^(doc|docx)$/.test(ext)) return 'icon-file-word-fill';
+        if (/^(xls|xlsx|csv)$/.test(ext)) return 'icon-file-excel-fill';
+        if (/^(ppt|pptx)$/.test(ext)) return 'icon-file-ppt-fill';
+        if (/^pdf$/.test(ext)) return 'icon-file-text-fill';
+        return 'icon-file-unknown-fill';
+    }
+
+    function fmtSize(n) {
+        if (n < 1024) return n + ' B';
+        if (n < 1048576) return (n / 1024).toFixed(1) + ' KB';
+        return (n / 1048576).toFixed(2) + ' MB';
+    }
+
+    // 图片压缩：level 1~10，越大体积越小。
+    // PNG 保持 PNG 格式（保留透明），按强度等比缩小尺寸；其余图片转 JPG 按质量压缩。
+    function compressImage(file, level) {
+        return new Promise(function (resolve) {
+            var url = URL.createObjectURL(file);
+            var img = new Image();
+            img.onload = function () {
+                var isPng = /^image\/png$/i.test(file.type);
+                var canvas = document.createElement('canvas');
+                var scale = 1 - (level - 1) / 9 * 0.4; // 1→1.0(原尺寸) 10→0.6
+                canvas.width = Math.max(1, Math.round((img.naturalWidth || img.width) * scale));
+                canvas.height = Math.max(1, Math.round((img.naturalHeight || img.height) * scale));
+                canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+                URL.revokeObjectURL(url);
+                if (isPng) {
+                    canvas.toBlob(function (blob) {
+                        if (blob) {
+                            resolve(new File([blob], file.name.replace(/\.[^.]+$/, '') + '.png', { type: 'image/png' }));
+                        } else {
+                            resolve(file);
+                        }
+                    }, 'image/png');
+                } else {
+                    var quality = (11 - level) / 10; // 1→1.0(最清) 10→0.1(最小)
+                    canvas.toBlob(function (blob) {
+                        if (blob) {
+                            resolve(new File([blob], file.name.replace(/\.[^.]+$/, '') + '.jpg', { type: 'image/jpeg' }));
+                        } else {
+                            resolve(file);
+                        }
+                    }, 'image/jpeg', quality);
+                }
+            };
+            img.onerror = function () { URL.revokeObjectURL(url); resolve(file); };
+            img.src = url;
+        });
+    }
+
+    function initUpload(box) {
+        if (!box || box.getAttribute(UP_KEY) === '1') return;
+        box.setAttribute(UP_KEY, '1');
+
+        var drop = box.querySelector('#upload-drop');
+        var input = box.querySelector('#upload-input');
+        var filesEl = box.querySelector('#upload-files');
+        var compressEnable = box.querySelector('#compress-enable');
+        var compressLevel = box.querySelector('#compress-level');
+        var levelVal = box.querySelector('#compress-level-val');
+        var countEl = box.querySelector('#upload-count');
+        var confirmBtn = box.querySelector('#upload-confirm');
+        var resultEl = box.querySelector('#upload-result');
+        var uploadUrl = box.getAttribute('data-upload-url') || '/admin/attachment/upload';
+        var target = box.getAttribute('data-target') || '';
+        // 复用附件的请求条件：type 允许类型（逗号扩展名，*全部）、max 最大文件数（0 不限）
+        var allowTypes = box.getAttribute('data-type') || '*';
+        var maxCount = parseInt(box.getAttribute('data-max') || '0', 10);
+        if (!drop || !input || !filesEl || !countEl || !confirmBtn) return;
+
+        var files = [];
+        var uploading = false;
+
+        function extOf(name) {
+            return (name.split('.').pop() || '').toLowerCase();
+        }
+
+        function allowExt(ext) {
+            if (!allowTypes || allowTypes === '*') return true;
+            var list = allowTypes.split(',');
+            for (var t = 0; t < list.length; t++) {
+                if ((list[t] || '').trim().toLowerCase() === ext) return true;
+            }
+            return false;
+        }
+
+        function syncCount() {
+            var okCount = 0;
+            var failCount = 0;
+            files.forEach(function (it) {
+                if (it.done && it.ok) okCount++;
+                else if (it.done) failCount++;
+            });
+            if (!files.length) {
+                countEl.textContent = '尚未选择文件';
+            } else if (uploading) {
+                countEl.textContent = '上传中...';
+            } else {
+                countEl.textContent = (failCount ? okCount + ' 成功 / ' + failCount + ' 失败' : '已上传 ' + okCount + ' 个文件');
+            }
+            var allDone = files.length > 0 && !uploading;
+            confirmBtn.disabled = !allDone;
+        }
+
+        function render() {
+            filesEl.innerHTML = '';
+            files.forEach(function (it, idx) {
+                var div = document.createElement('div');
+                div.className = 'upload-file';
+                div.innerHTML =
+                    '<i class="bny-icon ' + it.icon + '"></i>' +
+                    '<span class="upload-file-meta">' +
+                    '  <span class="upload-file-name"></span>' +
+                    '  <span class="upload-file-size"></span>' +
+                    '</span>' +
+                    '<span class="upload-file-status"></span>' +
+                    '<button class="upload-file-remove" type="button">&times;</button>';
+                div.querySelector('.upload-file-name').textContent = it.file.name;
+                div.querySelector('.upload-file-size').textContent = fmtSize(it.file.size);
+                div.querySelector('.upload-file-remove').addEventListener('click', function () {
+                    if (uploading) return;
+                    files.splice(idx, 1);
+                    render();
+                    syncCount();
+                });
+                filesEl.appendChild(div);
+                it.el = div;
+            });
+            if (resultEl) resultEl.textContent = '';
+        }
+
+        function addFiles(list) {
+            var added = 0;
+            var skipped = 0;
+            for (var i = 0; i < list.length; i++) {
+                var f = list[i];
+                // 类型白名单
+                if (!allowExt(extOf(f.name))) {
+                    skipped++;
+                    continue;
+                }
+                // 数量上限
+                if (maxCount > 0 && files.length + added >= maxCount) {
+                    if (window.bny && bny.alert) bny.alert('最多只能上传 ' + maxCount + ' 个文件', 3);
+                    break;
+                }
+                files.push({ file: f, icon: fileIcon(f.name), el: null, done: false, ok: false, path: '' });
+                added++;
+            }
+            if (skipped) {
+                if (window.bny && bny.alert) bny.alert('已跳过 ' + skipped + ' 个不支持类型的文件', 3);
+            }
+            render();
+            syncCount();
+            // 选好文件立即自动压缩上传
+            if (added) startUpload();
+        }
+
+        // 自动压缩上传：逐文件压缩 → 上传，状态实时更新
+        function startUpload() {
+            if (uploading) return;
+            uploading = true;
+            syncCount();
+
+            function next(i) {
+                if (i >= files.length) {
+                    uploading = false;
+                    if (resultEl) {
+                        var okCount = 0;
+                        files.forEach(function (it) { if (it.done && it.ok) okCount++; });
+                        resultEl.textContent = okCount ? '上传完成，可点击"确定"返回' : '';
+                    }
+                    syncCount();
+                    return;
+                }
+                var it = files[i];
+                var st = it.el.querySelector('.upload-file-status');
+                var doUpload = function (f) {
+                    st.textContent = '上传中...';
+                    st.className = 'upload-file-status';
+                    var fd = new FormData();
+                    fd.append('file', f);
+                    fd.append('type', allowTypes);
+                    fetch(uploadUrl, { method: 'POST', body: fd })
+                        .then(function (r) { return r.json(); })
+                        .then(function (data) {
+                            it.done = true;
+                            if (data && data.code === 0) {
+                                it.ok = true;
+                                // 后端返回 url（优先）或 path
+                                it.path = data.url || data.path || '';
+                                st.textContent = '成功';
+                                st.className = 'upload-file-status ok';
+                            } else {
+                                st.textContent = (data && data.msg) || '失败';
+                                st.className = 'upload-file-status fail';
+                            }
+                            next(i + 1);
+                        })
+                        .catch(function () {
+                            it.done = true;
+                            st.textContent = '请求失败';
+                            st.className = 'upload-file-status fail';
+                            next(i + 1);
+                        });
+                };
+                // 开启压缩且为图片 → 压缩后上传；否则原样上传
+                var level = compressEnable && compressEnable.checked ? parseInt(compressLevel.value, 10) : 0;
+                if (level > 0 && /^image\//.test(it.file.type)) {
+                    st.textContent = '压缩中...';
+                    st.className = 'upload-file-status';
+                    compressImage(it.file, level).then(doUpload);
+                } else {
+                    doUpload(it.file);
+                }
+            }
+
+            next(0);
+        }
+
+        // 确定：把成功上传的数据返回 input 并关闭弹层
+        function fillBack() {
+            var okPaths = [];
+            files.forEach(function (it) {
+                if (it.done && it.ok && it.path) okPaths.push(it.path);
+            });
+            if (target && okPaths.length) {
+                var field = document.getElementById(target);
+                if (field) {
+                    var cur = (field.value || '').trim();
+                    var arr = cur ? cur.split(',') : [];
+                    okPaths.forEach(function (p) {
+                        if (arr.indexOf(p) === -1) arr.push(p);
+                    });
+                    field.value = arr.join(',');
+                    try { field.dispatchEvent(new Event('input', { bubbles: true })); } catch (e) { }
+                }
+            }
+            var page = box.closest('.bny-page');
+            if (page) {
+                var closeBtn = page.querySelector('.close-btn');
+                if (closeBtn) closeBtn.click();
+            }
+        }
+
+        // 点击选择
+        drop.addEventListener('click', function () { input.click(); });
+        input.addEventListener('change', function () {
+            addFiles(input.files);
+            input.value = '';
+        });
+        // 拖拽
+        ['dragenter', 'dragover'].forEach(function (name) {
+            drop.addEventListener(name, function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                drop.classList.add('dragover');
+            });
+        });
+        ['dragleave', 'drop'].forEach(function (name) {
+            drop.addEventListener(name, function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                drop.classList.remove('dragover');
+                if (name === 'drop' && e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length) {
+                    addFiles(e.dataTransfer.files);
+                }
+            });
+        });
+        // 压缩强度显示
+        if (compressLevel && levelVal) {
+            compressLevel.addEventListener('input', function () {
+                levelVal.textContent = compressLevel.value;
+            });
+        }
+        // 确定 → 回填 + 关闭
+        confirmBtn.addEventListener('click', fillBack);
+    }
+
+    function tryInit(root) {
+        if (!root || !root.querySelector) return;
+        var list = root.classList && root.classList.contains('upload-box')
+            ? [root]
+            : Array.prototype.slice.call(root.querySelectorAll('.upload-box'));
+        for (var i = 0; i < list.length; i++) initUpload(list[i]);
+    }
+
+    function watchUploads() {
+        if (!window.MutationObserver || !document.body) return;
+        new MutationObserver(function (mutations) {
+            for (var i = 0; i < mutations.length; i++) {
+                var nodes = mutations[i].addedNodes;
+                for (var j = 0; j < nodes.length; j++) {
+                    if (nodes[j] && nodes[j].nodeType === 1) tryInit(nodes[j]);
+                }
+            }
+        }).observe(document.body, { childList: true, subtree: true });
+    }
+
+    document.addEventListener('htmx:load', function (e) { tryInit(e.target); });
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function () { tryInit(document); watchUploads(); });
+    } else {
+        tryInit(document);
+        watchUploads();
     }
 })();

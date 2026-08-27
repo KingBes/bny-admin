@@ -106,10 +106,11 @@ class Index extends BaseController
             $admin = request()->param();
 
             try {
-                // 写 .env → 建表 → 创建管理员账号，顺序执行
+                // 写 .env → 建表 → 创建管理员账号 → 创建基础配置信息，顺序执行
                 $this->writeEnv($cfg);
                 $this->installTables($cfg);
                 $this->createAdmin($cfg, $admin);
+                $this->createConfig($cfg);
             } catch (\Throwable $e) {
                 // 任一环节失败：回显错误并停留在当前步骤（保留已填写的表单）
                 return $this->fetch('register_admin', [
@@ -449,5 +450,23 @@ class Index extends BaseController
 
         // 最后一步：写入安装锁
         @file_put_contents($this->lockPath(), date('Y-m-d H:i:s'));
+    }
+
+    /**
+     * 创建基础配置信息
+     *
+     * @return void
+     */
+    private function createConfig(array $cfg): void
+    {
+        $pdo = $this->pdo($cfg);
+        $data = [
+            ["key" => "upload_size", "value" => "20"],
+            ["key" => "upload_ext", "value" => "jpg,jpeg,png,gif,mp4"],
+        ];
+        foreach ($data as $item) {
+            $pdo->prepare("INSERT INTO `{$cfg['prefix']}config` (`key`,`value`,`group`,`create_time`,`update_time`) VALUES (?,?,?,?,?)")
+                ->execute([$item['key'], $item['value'], 'base', time(), time()]);
+        }
     }
 }
