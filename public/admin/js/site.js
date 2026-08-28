@@ -67,7 +67,233 @@
     document.addEventListener('webkitfullscreenchange', syncFullBtn);
 })();
 
-// 附件选择器：勾选/单选限数/搜索过滤/全选/确认回填
+// ===== htmx 扩展 bny-attach：附件网格滚动加载 + 防抖搜索 =====
+// 用法：
+//   <div class="attach-grid" hx-ext="bny-attach"
+//        hx-post="/attachment/select" attach-search="#attach-search"></div>
+// 服务端 POST 返回分页 JSON：{code:0, total, per_page, current_page, last_page, data:[...]}
+(function () {
+    if (typeof htmx === 'undefined') return;
+
+    // 按扩展名取 bunny 图标类名（与后端 getFileIcon 一致）
+    function iconOf(ext) {
+        ext = String(ext || '').toLowerCase();
+        var images = ['png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp', 'svg', 'ico', 'avif'];
+        if (images.indexOf(ext) !== -1) return 'icon-image';
+        var videos = ['mp4', 'mov', 'avi', 'mkv', 'webm'];
+        if (videos.indexOf(ext) !== -1) return 'icon-video';
+        var map = {
+            zip: 'icon-file-unknown-fill', rar: 'icon-file-unknown-fill',
+            '7z': 'icon-file-unknown-fill', tar: 'icon-file-unknown-fill', gz: 'icon-file-unknown-fill',
+            doc: 'icon-file-word-fill', docx: 'icon-file-word-fill',
+            xls: 'icon-file-excel-fill', xlsx: 'icon-file-excel-fill', csv: 'icon-file-excel-fill',
+            ppt: 'icon-file-ppt-fill', pptx: 'icon-file-ppt-fill',
+            pdf: 'icon-file-text-fill'
+        };
+        return map[ext] || 'icon-file-unknown-fill';
+    }
+
+    function esc(s) {
+        return String(s == null ? '' : s)
+            .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    // 附件创建时间：后端模型已按 datetime_format 输出为 'Y-m-d H:i:s' 字符串，直接显示
+    function fmtTime(t) {
+        if (t === null || t === undefined || t === '') return '';
+        // 兼容纯时间戳（int），秒级*1000 转毫秒
+        var s = String(t);
+        if (/^\d+$/.test(s)) {
+            var n = parseInt(t, 10);
+            if (n < 1e11) n *= 1000;
+            var d = new Date(n);
+            return isNaN(d.getTime()) ? s : d.toLocaleString('zh-CN', { hour12: false });
+        }
+        return s;
+    }
+
+    // 渲染单个附件项（复选框 value = 文件访问地址）
+    function itemHtml(it) {
+        var url = '/files/' + it.id + '.' + it.ext;
+        var isImg = (it.mime || '').indexOf('image/') === 0;
+        var thumb = isImg
+            ? '<img src="' + url + '" alt="' + esc(it.name) + '" loading="lazy" />'
+            : '<i class="bny-icon ' + iconOf(it.ext) + '"></i>';
+        var time = fmtTime(it.create_time);
+        return '<label class="attach-item" data-name="' + esc(it.name) + '" data-type="' + esc(it.ext) + '">' +
+            '<input class="bny-checkbox" type="checkbox" value="' + url + '" />' +
+            '<span class="attach-thumb">' + thumb + '</span>' +
+            '<span class="attach-meta">' +
+            '<em class="attach-name">' + esc(it.name) + '</em>' +
+            '<small class="attach-time">' + esc(time) + '</small>' +
+            '</span></label>';
+    }
+
+    // 渲染一整页数据到网格
+    function render(elt, json, append) {
+        var rows = (json && json.data) || [];
+        var html = '';
+        for (var i = 0; i < rows.length; i++) html += itemHtml(rows[i]);
+        if (append) {
+            elt.insertAdjacentHTML('beforeend', html);
+            var em = elt.querySelector('.attach-empty');
+            if (em) em.remove();
+        } else {
+            elt.innerHTML = html || '<div class="attach-empty" style="display:flex;">' +
+                '<i class="bny-icon icon-folder-open"></i><p>没有找到匹配的附件</p></div>';
+        }
+        // 移除加载中提示
+        var ld = elt.querySelector('.attach-loading');
+        if (ld) ld.remove();
+        // 通知勾选逻辑（替换后清空勾选；追加不清）
+        elt.dispatchEvent(new CustomEvent('attach-rendered', { detail: { append: !!append } }));
+    }
+
+    // 显示/移除底部加载中提示
+    function setLoading(elt, on) {
+        var ld = elt.querySelector('.attach-loading');
+        if (on) {
+            if (!ld) {
+                ld = document.createElement('div');
+                ld.className = 'attach-loading';
+                ld.innerHTML = '<span class="attach-more-tip">正在加载…</span>';
+                elt.appendChild(ld);
+            }
+            ld.style.display = '';
+        } else if (ld) {
+            ld.remove();
+        }
+    }
+
+    htmx.defineExtension('bny-attach', {
+        onEvent: function (name, evt) {
+            if (name !== 'htmx:afterProcessNode') return true;
+            var elt = evt.target;
+            if (!elt || !elt.matches || !elt.matches('[hx-ext~="bny-attach"]')) return true;
+            init(elt);
+            return true; // 不阻断其它扩展对该事件的处理
+        },
+        transformResponse: function (text, xhr, elt) {
+            if (!elt || !elt._attachState) return text;
+            var st = elt._attachState;
+            // 仅处理扩展主动发起的请求（htmx.ajax），其他来源一律不渲染
+            if (!st.loading) return '';
+            var ct = xhr.getResponseHeader('Content-Type') || '';
+            if (ct.indexOf('application/json') === -1) return '';
+            var json;
+            try { json = JSON.parse(text); } catch (e) { return ''; }
+            if (json.code !== 0) return ''; // 非成功：不渲染
+            st.lastPage = parseInt(json.last_page, 10) || 1;
+            render(elt, json, st.mode === 'append');
+            // 渲染完成后补检：内容不足一屏则继续加载下一页（直到可滚动或没有更多）
+            if (st.maybeLoadMore) setTimeout(st.maybeLoadMore, 0);
+            return '';
+        }
+    });
+
+    function init(elt) {
+        if (elt._attachState) return;
+        var st = { page: 0, lastPage: 1, loading: false, kw: '' };
+        elt._attachState = st;
+        var url = elt.getAttribute('hx-post');
+        var searchSel = elt.getAttribute('attach-search');
+        var search = searchSel ? document.querySelector(searchSel) : null;
+
+        function load(page, mode) {
+            if (st.loading) return;
+            st.loading = true;
+            st.mode = mode; // 'replace' | 'append'
+            // 追加加载时显示底部提示，替换（初次/搜索）时不显示
+            if (mode === 'append') setLoading(elt, true);
+            try {
+                htmx.ajax('POST', url, {
+                    source: elt,
+                    target: elt,
+                    swap: 'none',
+                    values: { name: st.kw, page: page }
+                });
+            } catch (e) {
+                st.loading = false;
+                setLoading(elt, false);
+            }
+        }
+
+        // 统一判定是否继续加载下一页（自动补页专用）：
+        // - 有下一页
+        // - 网格可见（bunny tab 隐藏面板是 height:0 + visibility:hidden，
+        //   offsetParent 非 null 但 offsetHeight 为 0，用它判断可见性）
+        // - 内容不足一屏（没有滚动条，永不会触发 scroll 事件）
+        // 注意：接近底部由用户滚动触发，这里不做——避免每页 1 条时自动级联加载到最后一页
+        st.maybeLoadMore = function () {
+            if (st.loading) return;
+            if (st.page >= st.lastPage) return;
+            if (elt.offsetHeight <= 0) return; // 隐藏页签内跳过，等显示后再续
+            if (elt.scrollHeight <= elt.clientHeight + 4) {
+                load(st.page + 1, 'append');
+            }
+        };
+
+        // 滚动：接近底部时预加载下一页。
+        // - 余量 300px：比一屏更早触发，快速滚动时下一页已就绪，避免"滚到底等加载"的卡顿
+        // - requestAnimationFrame 节流：高速滚动时只按帧计算一次，避免 scroll 事件反复触发开销
+        var rafId = null;
+        elt.addEventListener('scroll', function () {
+            if (rafId !== null) return;
+            rafId = requestAnimationFrame(function () {
+                rafId = null;
+                if (st.loading) return;
+                if (st.page >= st.lastPage) return;
+                var bottom = elt.scrollHeight - elt.scrollTop - elt.clientHeight;
+                if (bottom < 300) load(st.page + 1, 'append');
+            });
+        });
+
+        // 搜索防抖 300ms：重置回第一页
+        if (search) {
+            var timer = null;
+            search.addEventListener('input', function () {
+                clearTimeout(timer);
+                timer = setTimeout(function () {
+                    st.kw = (search.value || '').trim();
+                    st.page = 0; // 重置页码
+                    load(1, 'replace');
+                }, 300);
+            });
+        }
+
+        // 请求完成：更新当前页码（replace 后 page=1，append 后 page 自增）
+        elt.addEventListener('htmx:afterRequest', function (e) {
+            // 以请求源为准，兼容 source 与事件目标两种情况
+            var reqElt = (e.detail && e.detail.elt) || e.target;
+            if (reqElt !== elt || !st.loading) return;
+            st.loading = false;
+            setLoading(elt, false); // 兜底移除加载提示（渲染成功时 render 已移除）
+            if (st.mode === 'append') st.page += 1; else st.page = 1;
+            // 自动续页兜底（部分图片异步加载后高度变化，补检一次）
+            setTimeout(st.maybeLoadMore, 30);
+        });
+
+        // 页签切换到本面板时（隐藏→显示）补检：不足一屏则继续续页
+        var tabBox = elt.closest('[hx-ext~="bny-tab"]');
+        if (tabBox) {
+            tabBox.addEventListener('click', function (e) {
+                if (!e.target.closest) return;
+                var li = e.target.closest('.head>li');
+                if (!li) return;
+                // 等 CSS 类切换完成后再检查
+                setTimeout(st.maybeLoadMore, 60);
+            });
+        }
+
+        // 初次加载第一页
+        elt._attachState = st;
+        load(1, 'replace');
+    }
+})();
+
+// ===== 附件选择器：勾选/单选限数/全选/计数/确认回填 =====
+// 列表内容由 bny-attach 扩展动态渲染，这里只负责交互与回填
 (function () {
     var KEY = 'data-attach-inited';
 
@@ -77,18 +303,24 @@
 
         var grid = box.querySelector('.attach-grid');
         if (!grid) return;
-        var search = box.querySelector('.attach-search input');
         var all = box.querySelector('.attach-all input');
         var countEl = box.querySelector('.attach-count b');
         var confirmBtn = box.querySelector('#attach-confirm');
-        var empty = box.querySelector('.attach-empty');
-        var items = Array.prototype.slice.call(grid.querySelectorAll('.attach-item'));
 
-        var max = parseInt(box.getAttribute('data-max') || '1', 10);
-        var target = box.getAttribute('data-target') || '';
+        var max = parseInt((box.querySelector('input[name="max"]') || {}).value || '1', 10);
+        var target = ((box.querySelector('input[name="target"]') || {}).value || '').trim();
+
+        function curItems() {
+            return grid.querySelectorAll('.attach-item');
+        }
 
         function visible() {
-            return items.filter(function (it) { return it.style.display !== 'none'; });
+            var all2 = curItems();
+            var out = [];
+            for (var i = 0; i < all2.length; i++) {
+                if (all2[i].style.display !== 'none') out.push(all2[i]);
+            }
+            return out;
         }
 
         function allChecked() {
@@ -103,7 +335,7 @@
 
         allChecked();
 
-        // 勾选：高亮 + 计数，单选/上限控制
+        // 勾选：高亮 + 计数，单选/上限控制（事件委托，htmx 新节点同样生效）
         grid.addEventListener('change', function (e) {
             var input = e.target;
             if (input.type !== 'checkbox' || !input.closest('.attach-item')) return;
@@ -111,6 +343,7 @@
                 var checked = grid.querySelectorAll('.bny-checkbox:checked').length;
                 if (max === 1 && checked > 1) {
                     // 单选：取消其它选择
+                    var items = curItems();
                     for (var i = 0; i < items.length; i++) {
                         var c = items[i].querySelector('.bny-checkbox');
                         if (c !== input && c.checked) c.checked = false;
@@ -121,27 +354,19 @@
                     return;
                 }
             }
-            for (var j = 0; j < items.length; j++) {
-                items[j].classList.toggle('checked', items[j].querySelector('.bny-checkbox').checked);
+            var items2 = curItems();
+            for (var j = 0; j < items2.length; j++) {
+                items2[j].classList.toggle('checked', items2[j].querySelector('.bny-checkbox').checked);
             }
             allChecked();
         });
 
-        // 搜索：按文件名过滤
-        if (search) {
-            search.addEventListener('input', function () {
-                var kw = search.value.trim().toLowerCase();
-                var n = 0;
-                for (var s = 0; s < items.length; s++) {
-                    var name = (items[s].getAttribute('data-name') || '').toLowerCase();
-                    var hit = !kw || name.indexOf(kw) !== -1;
-                    items[s].style.display = hit ? '' : 'none';
-                    if (hit) n++;
-                }
-                if (empty) empty.style.display = n ? 'none' : 'flex';
-                allChecked();
-            });
-        }
+        // 列表替换后：清空勾选与计数（追加不动）
+        grid.addEventListener('attach-rendered', function (e) {
+            if (e.detail && e.detail.append) return;
+            if (countEl) countEl.textContent = 0;
+            if (all) all.checked = false;
+        });
 
         // 全选（仅当前可见项，受上限约束）
         if (all) {
@@ -154,6 +379,7 @@
                     var canCheck = checked && (max === 0 || a < max);
                     if (c.checked !== canCheck) c.checked = canCheck;
                 }
+                var items = curItems();
                 for (var b = 0; b < items.length; b++) {
                     items[b].classList.toggle('checked', items[b].querySelector('.bny-checkbox').checked);
                 }
@@ -165,6 +391,7 @@
         if (confirmBtn) {
             confirmBtn.addEventListener('click', function () {
                 var picked = [];
+                var items = curItems();
                 for (var p = 0; p < items.length; p++) {
                     var pc = items[p].querySelector('.bny-checkbox');
                     if (pc.checked) picked.push(pc.value);
@@ -212,8 +439,6 @@
         }
     }
 
-    // 兜底：bny-page 等以 innerHTML 方式注入的内容不会派发 htmx:load，
-    // 用 MutationObserver 监听 DOM 变化，出现 .attach-select 即初始化
     function watchBody() {
         if (!window.MutationObserver || !document.body) return;
         new MutationObserver(function (mutations) {
@@ -228,16 +453,12 @@
         }).observe(document.body, { childList: true, subtree: true });
     }
 
-    function boot() {
-        tryInit(document);
-        watchBody();
-    }
-
     document.addEventListener('htmx:load', function (e) { tryInit(e.target); });
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', boot);
+        document.addEventListener('DOMContentLoaded', function () { tryInit(document); watchBody(); });
     } else {
-        boot();
+        tryInit(document);
+        watchBody();
     }
 })();
 
@@ -564,12 +785,17 @@
             if (target && okPaths.length) {
                 var field = document.getElementById(target);
                 if (field) {
-                    var cur = (field.value || '').trim();
-                    var arr = cur ? cur.split(',') : [];
-                    okPaths.forEach(function (p) {
-                        if (arr.indexOf(p) === -1) arr.push(p);
-                    });
-                    field.value = arr.join(',');
+                    if (maxCount === 1) {
+                        // 单选：替换，只保留最新一张
+                        field.value = okPaths[okPaths.length - 1];
+                    } else {
+                        // 多选：与已有值合并去重（已有在前）
+                        var arr = ((field.value || '').trim() ? field.value.trim().split(',') : []);
+                        okPaths.forEach(function (p) {
+                            if (arr.indexOf(p) === -1) arr.push(p);
+                        });
+                        field.value = arr.join(',');
+                    }
                     try { field.dispatchEvent(new Event('input', { bubbles: true })); } catch (e) { }
                 }
             }

@@ -727,6 +727,48 @@ html:not(.dark) .icon-moon {
     flex-direction: column;
 }
 
+/* 关键：bunny tab 面板默认 height:auto（内容撑开），会导致内部网格无确定高度、
+   scrollHeight 恒等于 clientHeight，滚动加载无法判断"是否超出屏幕"。这里把激活
+   面板固定为弹层剩余高度，使 .attach-grid 获得真实的滚动容器。 */
+.attach-finder [hx-ext~="bny-tab"]>.body>div.show {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+/* 底部加载提示（滚动加载下一页时显示） */
+.attach-loading {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 14px 0 6px;
+    color: var(--black-shallow);
+    font-size: var(--font-size-sm);
+}
+
+.attach-loading .attach-more-tip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.attach-loading .attach-more-tip::before {
+    content: "";
+    width: 14px;
+    height: 14px;
+    border: 2px solid var(--gray-middle);
+    border-top-color: var(--default);
+    border-radius: 50%;
+    animation: attach-spin 0.7s linear infinite;
+}
+
+@keyframes attach-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
 .attach-finder>[hx-ext~="bny-tab"] {
     flex: 1;
     min-height: 0;
@@ -753,6 +795,14 @@ html:not(.dark) .icon-moon {
 .attach-empty p {
     margin: 0;
     font-size: var(--font-size-sm);
+}
+
+/* 分页条容器（放 bunny-ui bny-pagination 组件） */
+.attach-pager {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 /* ====== 上传弹层 ====== */

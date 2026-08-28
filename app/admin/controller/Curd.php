@@ -8,18 +8,18 @@ use Kingbes\Annotation\Annotation;
 abstract class Curd extends BaseController
 {
     #[Annotation([
-        "title" => "读取",
-        "page" => true,
+        "title" => "查询",
+        "page" => false,
         "auth" => true,
     ])]
-    public function read(): string
+    public function query(): string
     {
         return $this->fetch();
     }
 
     #[Annotation([
         "title" => "创建",
-        "page" => true,
+        "page" => false,
         "auth" => true,
     ])]
     public function create(): string

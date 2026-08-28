@@ -12,13 +12,18 @@ use think\facade\Route;
 use \app\model\Attachment;
 
 // 文件下载
-Route::get("/files/:id.:ext", function () {
-    $id = request()->param("id");
-    $ext = request()->param("ext");
+Route::get("/files/:name", function () {
+    $name = request()->param("name");
+    [$id, $ext] = explode(".", $name);
     $file = Attachment::where(["id" => $id, "ext" => $ext])->find();
     if ($file) {
-        return response(file_get_contents($file->path), 200, ["Content-Type" => $file->mime]);
+        $path = $file->path;
+        $path = app()->getRootPath() . "files" . DIRECTORY_SEPARATOR . $path;
+        if (!file_exists($path)) {
+            return response("文件不存在", 404);
+        }
+        return response(file_get_contents($path), 200, ["Content-Type" => $file->mime]);
     } else {
-        return response("file not found", 404);
+        return response("没有该文件数据", 404);
     }
 })->name("files.download");
