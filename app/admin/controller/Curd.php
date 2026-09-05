@@ -9,7 +9,7 @@ abstract class Curd extends BaseController
 {
     #[Annotation([
         "title" => "查询",
-        "page" => false,
+        "menu" => false,
         "auth" => true,
     ])]
     public function query(): string
@@ -19,7 +19,7 @@ abstract class Curd extends BaseController
 
     #[Annotation([
         "title" => "创建",
-        "page" => false,
+        "menu" => false,
         "auth" => true,
     ])]
     public function create(): string
@@ -29,7 +29,7 @@ abstract class Curd extends BaseController
 
     #[Annotation([
         "title" => "更新",
-        "page" => false,
+        "menu" => false,
         "auth" => true,
     ])]
     public function update(): string
@@ -39,7 +39,7 @@ abstract class Curd extends BaseController
 
     #[Annotation([
         "title" => "删除",
-        "page" => false,
+        "menu" => false,
         "auth" => true,
     ])]
     public function delete(): string

@@ -1,0 +1,83 @@
+<div class="admin-page">
+    <div class="bny-card">
+        <div class="head">
+            <span><i class="bny-icon icon-user"></i> 管理员</span>
+        </div>
+        <div class="body">
+            <!-- 工具栏 -->
+            <div class="flex-between flex-wrap" style="gap:12px;margin-bottom:12px">
+                <!-- 左侧：全选 + 批量操作 -->
+                <div class="flex items-center flex-wrap" style="gap:12px">
+                    <button class="bny-btn" btn-model="border" hx-ext="bny-attr"
+                        hx-target="all #table-admin input[name='id[]']" attr-toggle="checked">
+                        全选/反选
+                    </button>
+                    <button class="bny-btn" btn-model="border" btn-color="red" hx-ext="bny-confirm" hx-confirm="确认删除吗？"
+                        confirm-yes="bny.tableReload('#table-admin')" hx-get="{:url('admin.admin.delete')}"
+                        hx-include="#table-admin input[name='id[]']:checked">
+                        <i class="bny-icon icon-delete"></i> 批量删除
+                    </button>
+                    <button class="bny-btn" btn-model="border" btn-color="blue" hx-ext="bny-page"
+                        hx-get="{:url('admin.admin.add')}" page-shade hx-swap="none">添加</button>
+                </div>
+                <!-- 右侧：搜索 -->
+                <div class="flex items-center flex-wrap" style="gap:12px">
+                    <input class="bny-input" type="text" name="nickname" placeholder="搜索昵称"
+                        style="width:220px;max-width:100%" hx-ext="bny-table" hx-post="{:url('admin.admin.view')}"
+                        hx-target="#table-admin tbody" hx-swap="innerHTML" hx-trigger="input changed delay:400ms"
+                        hx-include="closest div" />
+                </div>
+            </div>
+
+            <!-- 表格 -->
+            <table hx-ext="bny-table" id="table-admin" table-static table-server table-key="admin"
+                hx-post="{:url('admin.admin.view')}" hx-trigger="load" hx-target="find tbody" hx-swap="innerHTML"
+                table-list="10,50,100">
+                <thead>
+                    <tr>
+                        <th cell-field="id" width="80" cell-template=".tpl-admin-id">ID</th>
+                        <th cell-field="nickname" cell-sort>昵称</th>
+                        <th cell-field="username" cell-sort>用户名</th>
+                        <th cell-field="role" cell-sort cell-template=".tpl-admin-role">角色</th>
+                        <th cell-field="create_time" cell-sort>创建时间</th>
+                        <th cell-field="update_time" cell-sort>更新时间</th>
+                        <th cell-template=".tpl-admin-operation">操作</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+            <!-- ID模板 -->
+            <template class="tpl-admin-id">
+                <label>
+                    <input type="checkbox" name="id[]" class="bny-checkbox" value="{{data.id}}">
+                </label>
+            </template>
+            <!-- 角色模板 -->
+            <template class="tpl-admin-role">
+                {{data.role}}
+            </template>
+            <!-- 操作模板 -->
+            <template class="tpl-admin-operation">
+                <button class="bny-btn" btn-model="border" hx-ext="bny-dropdown">更多
+                    <div class="bny-dropdown">
+                        <div hx-ext="bny-menu" menu-mode="vertical" menu-color="white">
+                            <div class="item">
+                                <div class="trigger" hx-get="{:url('admin.admin.edit')}?id={{data.id}}"
+                                    hx-ext="bny-page" title="编辑" page-shade hx-swap="none">
+                                    <span>编辑</span>
+                                </div>
+                            </div>
+                            <div class="item">
+                                <div class="trigger" hx-ext="bny-confirm" hx-confirm="确认删除吗？"
+                                    hx-get="{:url('admin.admin.delete')}?id[]={{data.id}}"
+                                    confirm-yes="bny.tableReload('#table-admin')">
+                                    <span>删除</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </button>
+            </template>
+        </div>
+    </div>
+</div>

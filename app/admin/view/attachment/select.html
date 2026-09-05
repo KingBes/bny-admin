@@ -55,8 +55,7 @@
                         <div class="bny-input-group attach-search">
                             <span class="bny-input-prefix"><i class="bny-icon icon-search"></i></span>
                             <!-- 纯输入框：搜索由 bny-attach 扩展监听（防抖） -->
-                            <input class="bny-input" id="attach-search" type="text" placeholder="搜索文件名"
-                                name="name" />
+                            <input class="bny-input" id="attach-search" type="text" placeholder="搜索文件名" name="name" />
                         </div>
                         <label class="attach-all">
                             <input type="checkbox" class="bny-checkbox" id="attach-all" />
@@ -69,11 +68,9 @@
 
                     <!-- 附件网格：由 bny-attach 扩展接管（滚动加载 + 搜索）
                  hx-trigger="none" 禁用 hx-post 默认的 click 触发，请求统一由扩展发起 -->
-                    <div class="attach-grid" id="attach-grid"
-                        hx-ext="bny-attach"
-                        hx-post="{:url('admin.attachment.select')}"
-                        hx-trigger="none"
-                        attach-search="#attach-search"></div>
+                    <div class="attach-grid" id="attach-grid" hx-ext="bny-attach,bny-alert"
+                        hx-post="{:url('admin.attachment.select')}" hx-trigger="none" attach-search="#attach-search">
+                    </div>
                 </div>
             </div>
         </div>

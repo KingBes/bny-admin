@@ -83,7 +83,7 @@ CREATE TABLE `bny_role`  (
   `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '主键',
   `pid` int(11) UNSIGNED NOT NULL DEFAULT 0 COMMENT '父级ID',
   `name` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '名称',
-  `rule` json NULL COMMENT '规则',
+  `rule` text COLLATE utf8mb4_unicode_ci COMMENT '规则',
   `note` tinytext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL COMMENT '备注',
   `create_time` int(11) UNSIGNED NOT NULL DEFAULT 0 COMMENT '创建时间',
   `update_time` int(11) UNSIGNED NOT NULL DEFAULT 0 COMMENT '更新时间',

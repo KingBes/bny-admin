@@ -21,7 +21,7 @@
     </aside>
 
     <!-- 右侧表单区 -->
-    <main class="auth-main">
+    <main class="auth-main" hx-ext="bny-alert,bny-url">
         <div class="auth-panel">
             <div class="auth-head">
                 <h2>欢迎登录</h2>
@@ -29,7 +29,7 @@
             </div>
 
             <!-- 登录表单 -->
-            <form class="auth-form" hx-ext="bny-form" hx-post="{:url('admin.login.login')}" hx-swap="none">
+            <form class="auth-form" hx-ext="bny-form bny-url" hx-post="{:url('admin.login.login')}" hx-swap="none">
                 <div class="form-item">
                     <label for="login-username">用户名</label>
                     <div class="bny-input-group" form-size="lg">

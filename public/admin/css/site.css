@@ -32,9 +32,9 @@ body {
     height: 100%;
 }
 
-.bny-page .content {
+/* .bny-page .content {
     overflow: hidden;
-}
+} */
 
 .admin-main {
     flex: 1;

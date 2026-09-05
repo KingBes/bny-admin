@@ -1,0 +1,61 @@
+<div class="p-12">
+    <div class="bny-card">
+        <div class="head">
+            <span><i class="bny-icon icon-setting"></i> 编辑</span>
+        </div>
+        <div class="body">
+            <form hx-ext="bny-form,bny-alert" hx-post="{:url('admin.admin.edit')}?id={$find.id}" hx-swap="none"
+                alert-fn="if(data.code==0){bny.tableReload('#table-admin')}">
+                <div class="form-item">
+                    <label class="bny-label">名称</label>
+                    <div class="input-group">
+                        <input class="bny-input" type="text" name="nickname" placeholder="请输入昵称"
+                            autocomplete="current-password" required valid-msg-required="请输入昵称"
+                            value="{$find.nickname}" />
+                    </div>
+                </div>
+                <div class="form-item">
+                    <label>角色选择</label>
+                    <div class="input-group">
+                        <ul hx-ext="bny-select" select-name="rid" select-required select-tree select-placeholder="选择角色"
+                            select-value="{$find.rid}">
+                            <li option-value="0" option-parent="0">超级管理员</li>
+                            <volist name="role" id="v">
+                                <li option-value="{$v.id}" option-parent="{$v.pid}">{$v.name}</li>
+                            </volist>
+                        </ul>
+                    </div>
+                </div>
+                <div class="form-item">
+                    <label class="bny-label">用户名</label>
+                    <div class="input-group">
+                        <input class="bny-input" type="text" name="username" placeholder="请输入用户名"
+                            autocomplete="current-password" required valid-msg-required="请输入用户名"
+                            value="{$find.username}" />
+                    </div>
+                </div>
+                <div class="form-item">
+                    <label class="bny-label">新密码</label>
+                    <div class="input-group">
+                        <input class="bny-input" type="password" name="password" id="mine-new-pwd"
+                            placeholder="请输入新密码（至少 6 位）" autocomplete="new-password" required minlength="6"
+                            valid-msg-required="请输入新密码" valid-msg-min="新密码长度不能少于 6 位" />
+                    </div>
+                </div>
+                <div class="form-item">
+                    <label class="bny-label">确认新密码</label>
+                    <div class="input-group">
+                        <input class="bny-input" type="password" name="confirm_password" placeholder="请再次输入新密码"
+                            autocomplete="new-password" required valid-rules="equals:password"
+                            valid-msg-required="请再次输入新密码" valid-msg-equals="两次输入的新密码不一致" />
+                    </div>
+                </div>
+                <div class="form-item">
+                    <div class="input-group">
+                        <button class="bny-btn" type="submit">提交</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

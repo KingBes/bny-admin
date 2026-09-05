@@ -17,10 +17,9 @@ Route::get("/files/:name", function () {
     [$id, $ext] = explode(".", $name);
     $file = Attachment::where(["id" => $id, "ext" => $ext])->find();
     if ($file) {
-        $path = $file->path;
-        $path = app()->getRootPath() . "files" . DIRECTORY_SEPARATOR . $path;
+        $path = app()->getRootPath() . "files" . DIRECTORY_SEPARATOR . $file->path;
         if (!file_exists($path)) {
-            return response("文件不存在", 404);
+            return response("文件不存在: $path", 404);
         }
         return response(file_get_contents($path), 200, ["Content-Type" => $file->mime]);
     } else {

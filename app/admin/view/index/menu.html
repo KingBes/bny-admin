@@ -22,10 +22,39 @@
                 <i class="bny-icon icon-arrowright"></i>
             </div>
             <ul class="sub-menu">
-                <li><a class="trigger" href="{:url('admin.system.users')}" admin-tab
-                        data-url="{:url('admin.system.users')}" data-title="用户管理"><span>用户管理</span></a></li>
-                <li><a class="trigger" href="{:url('admin.system.base')}" admin-tab
-                        data-url="{:url('admin.system.base')}" data-title="基础设置"><span>基础设置</span></a></li>
+                <li>
+                    <a class="trigger" href="{:url('admin.system.base')}" admin-tab
+                        data-url="{:url('admin.system.base')}" data-title="基础设置">
+                        <span>基础设置</span>
+                    </a>
+                </li>
+                <li>
+                    <a class="trigger" href="{:url('admin.attachment.view')}" admin-tab
+                        data-url="{:url('admin.attachment.view')}" data-title="附件管理">
+                        <span>附件管理</span>
+                    </a>
+                </li>
+            </ul>
+        </li>
+        <li>
+            <div class="trigger" tip="系统管理">
+                <i class="bny-icon icon-crown"></i>
+                <span>系统管理</span>
+                <i class="bny-icon icon-arrowright"></i>
+            </div>
+            <ul class="sub-menu">
+                <li>
+                    <a class="trigger" href="{:url('admin.admin.view')}" admin-tab data-url="{:url('admin.admin.view')}"
+                        data-title="管理员">
+                        <span>管理员</span>
+                    </a>
+                </li>
+                <li>
+                    <a class="trigger" href="{:url('admin.role.view')}" admin-tab data-url="{:url('admin.role.view')}"
+                        data-title="角色管理">
+                        <span>角色管理</span>
+                    </a>
+                </li>
             </ul>
         </li>
     </ul>

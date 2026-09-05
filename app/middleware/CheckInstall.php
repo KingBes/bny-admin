@@ -12,9 +12,9 @@ use think\Response;
 /**
  * 安装守护中间件
  *
- * 每次请求进入时检测系统是否已安装（项目根 .install.lock 是否存在）。
- * 未安装时，除 install 应用自身外，其余任意页面一律 302 跳转到 /install；
- * 安装完成后（锁文件存在）则完全放行，不干预任何请求。
+ * 每次请求进入时检测系统是否已安装（项目根 .install.lock 是否存在）：
+ * - 未安装：除 install 应用自身外，其余任意页面一律 302 跳转到 /install；
+ * - 已安装：拦截 install 应用，302 跳转到前台首页，防止重跑向导覆盖管理员账号。
  */
 class CheckInstall
 {
@@ -31,7 +31,7 @@ class CheckInstall
     }
 
     /**
-     * 当前请求是否属于 install 应用（防重定向死循环）
+     * 当前请求是否属于 install 应用
      */
     protected function isInstallRequest(Request $request): bool
     {
@@ -45,11 +45,19 @@ class CheckInstall
 
     public function handle(Request $request, Closure $next): Response
     {
-        if ($this->isInstalled() || $this->isInstallRequest($request)) {
-            return $next($request);
+        $installed  = $this->isInstalled();
+        $isInstall  = $this->isInstallRequest($request);
+
+        // 已安装：禁止再次进入安装向导（重跑会覆盖管理员账号）
+        if ($installed && $isInstall) {
+            return redirect('/');
         }
 
         // 未安装：跳转到安装向导
-        return redirect('/install');
+        if (!$installed && !$isInstall) {
+            return redirect('/install');
+        }
+
+        return $next($request);
     }
 }

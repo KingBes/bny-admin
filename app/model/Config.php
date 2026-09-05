@@ -27,7 +27,7 @@ class Config extends Model
     }
 
     /**
-     * 更新或添加配置
+     * 全量同步配置
      * @param array $data 配置数据
      * @param string $type 配置类型
      * @return mixed
@@ -35,18 +35,27 @@ class Config extends Model
     public static function upToAdd(array $data, string $type = 'base'): mixed
     {
         $res = true;
+        $existMap = array_flip(self::where('group', $type)->column('key'));
         foreach ($data as $key => $value) {
             $res = self::where("key", $key)->find();
             if ($res) {
-                $res->value = $value;
+                $res->value = (string) $value;
                 $res->save();
             } else {
                 $res = self::create([
                     'group' => $type,
                     'key' => $key,
-                    'value' => $value,
+                    'value' => (string) $value,
                 ]);
             }
+            // 已处理的键从删除队列中移除
+            unset($existMap[$key]);
+        }
+
+        // 该组中本次未提交的键：删除，防止脏数据/废弃字段残留
+        $toDelete = array_keys($existMap);
+        if ($toDelete !== []) {
+            self::where('group', $type)->where('key', 'in', $toDelete)->delete();
         }
         return $res;
     }

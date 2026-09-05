@@ -1,6 +1,6 @@
 <!-- 头部 -->
 <include file="public/head" />
-<div class="admin-layout" hx-ext="bny-alert">
+<div class="admin-layout">
     <!-- 侧边导航 -->
     <aside class="admin-side" hx-get="{:url('admin.index.menu',['toggle'=>'true'])}" hx-trigger="load"></aside>
     <!-- 主内容区 -->
@@ -41,7 +41,7 @@
                                     <span>个人中心</span>
                                 </div>
                             </div>
-                            <div class="item">
+                            <div class="item" hx-ext="bny-alert,bny-url">
                                 <div class="trigger" hx-post="{:url('admin.login.logout')}" hx-trigger="click"
                                     hx-swap="none">
                                     <span>退出登录</span>

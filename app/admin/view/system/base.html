@@ -74,7 +74,7 @@
                             <label class="bny-label">上传大小</label>
                             <div class="bny-input-group">
                                 <input class="bny-input" type="number" name="upload_size"
-                                    value="{$upload_size|default=''}" placeholder="请输入上传大小" />
+                                    value="{$upload_size|default=''}" required placeholder="请输入上传大小" />
                                 <span class="bny-input-suffix">
                                     MB
                                 </span>
@@ -83,8 +83,8 @@
                         <div class="form-item">
                             <label class="bny-label">上传文件</label>
                             <div class="bny-input-group">
-                                <input class="bny-input" type="text" name="upload_ext" value="{$upload_ext|default=''}"
-                                    placeholder="请输入上传文件" />
+                                <input class="bny-input" type="text" required name="upload_ext"
+                                    value="{$upload_ext|default=''}" placeholder="请输入上传文件" />
                             </div>
                         </div>
                         <div class="form-item">

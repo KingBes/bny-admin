@@ -6,19 +6,49 @@ use Kingbes\Annotation\Annotation;
 use think\Response;
 use app\model\Attachment as AttachmentModel;
 use think\exception\FileException;
+use app\model\Config;
+use app\BaseController;
 
-#[Annotation(["title" => "附件管理", "icon" => "icon-attachment"])]
-class Attachment extends Curd
+#[Annotation(["title" => "附件管理", "icon" => "icon-attachment", "auth" => true])]
+class Attachment extends BaseController
 {
-    #[Annotation(["title" => "首页", "page" => true, "auth" => true])]
-    public function index(): string
+    #[Annotation(["title" => "列表", "menu" => true, "auth" => true])]
+    public function view(): string|Response
     {
+        // 获取附件列表
         if (request()->isPost()) {
             $param = request()->param();
-            $list = AttachmentModel::where("is_delete", 0)->order("id desc")
-                ->paginate($param);
+            if (isset($param["sort"]) && isset($param["order"])) {
+                $order[$param["sort"]] = $param["order"];
+            } else {
+                $order = ["id" => "desc"];
+            }
+            $where = [];
+            $where[] = ["is_delete", "=", 0];
+            if (isset($param["name"]) && $param["name"] !== "") {
+                $where[] = ["name", "like", "%{$param["name"]}%"];
+            }
+            $data = AttachmentModel::where($where)->order($order)->paginate([
+                "list_rows" => $param["pageSize"] ?? 10,
+                "page"      => $param["page"] ?? 1,
+            ]);
+            return $this->success($data->toArray());
         }
         return $this->fetch();
+    }
+
+    #[Annotation(["title" => "删除", "menu" => false, "auth" => true])]
+    public function delete(): Response
+    {
+        $param = request()->param();
+        if (!isset($param["id"]) || $param["id"] <= 0) {
+            return $this->error("请选择要删除的附件");
+        }
+        $res = AttachmentModel::where("id", "in", $param["id"])->update(["is_delete" => 1]);
+        if ($res) {
+            return $this->success();
+        }
+        return $this->error();
     }
 
     #[Annotation(["title" => "选择附件", "page" => false, "auth" => false])]
@@ -46,13 +76,21 @@ class Attachment extends Curd
         return $this->fetch();
     }
 
-    #[Annotation(["title" => "上传附件", "page" => false, "auth" => false])]
+    #[Annotation(["title" => "上传附件", "menu" => false, "auth" => false])]
     public function upload(): Response
     {
         // 上传文件
         $file = request()->file("file");
         // 当前日期
         $date = date("Ymd");
+        // 上传配置
+        $is_size = Config::where("group", "base")
+            ->where("key", "upload_size")
+            ->value("value");
+        // 上传配置
+        $in_exts = Config::where("group", "base")
+            ->where("key", "upload_ext")
+            ->value("value");
         // 文件有效性（区分大小超限 / 未传文件，给出明确提示）
         if (!$file || !$file->isValid()) {
             $err = ($_FILES["file"]["error"] ?? null); // 获取上传错误码
@@ -70,6 +108,14 @@ class Attachment extends Curd
         // 原始文件名与扩展名
         $filename = $file->getOriginalName();
         $ext      = strtolower($file->getOriginalExtension());
+        // 验证文件扩展名
+        if (!in_array($ext, explode(",", $in_exts))) {
+            return $this->error("文件扩展名错误");
+        }
+        // 验证文件大小是否超出限制
+        if ($file->getSize() > (int)$is_size * 1024 * 1024) {
+            return $this->error("文件大小超出限制");
+        }
         // 路径文件夹
         $folder = app()->getRootPath() . "files" . DIRECTORY_SEPARATOR . $date;
         // 文件夹不存在则创建

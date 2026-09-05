@@ -8,7 +8,7 @@ use think\captcha\facade\Captcha;
 use Kingbes\Annotation\Annotation;
 use app\model\Admin;
 
-#[Annotation(["title" => "登录", "auth" => false])]
+#[Annotation(["title" => "登录管理", "auth" => false, "menu" => false])]
 class Login extends BaseController
 {
     /**
@@ -16,6 +16,7 @@ class Login extends BaseController
      *
      * @return string
      */
+    #[Annotation(["title" => "首页"])]
     public function index(): string
     {
         $this->assign(
@@ -30,6 +31,7 @@ class Login extends BaseController
      *
      * @return Response
      */
+    #[Annotation(["title" => "登录"])]
     public function login(): Response
     {
         $param = request()->param();
@@ -58,6 +60,7 @@ class Login extends BaseController
      *
      * @return Response
      */
+    #[Annotation(["title" => "验证码"])]
     public function captcha(): Response
     {
         return Captcha::create();
@@ -68,6 +71,7 @@ class Login extends BaseController
      *
      * @return Response
      */
+    #[Annotation(["title" => "退出登录"])]
     public function logout(): Response
     {
         session("admin_id", null);

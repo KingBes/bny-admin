@@ -5,14 +5,16 @@ namespace app\admin\controller;
 use app\BaseController;
 use Kingbes\Annotation\Annotation;
 
-#[Annotation(["title" => "首页", "auth" => false])]
+#[Annotation(["title" => "首页管理", "auth" => false, "menu" => false])]
 class Index extends BaseController
 {
+    #[Annotation(["title" => "首页"])]
     public function index(): string
     {
         return $this->fetch();
     }
 
+    #[Annotation(["title" => "仪表盘"])]
     public function home(): string
     {
         $this->assign([
@@ -26,6 +28,7 @@ class Index extends BaseController
         return $this->fetch();
     }
 
+    #[Annotation(["title" => "菜单"])]
     public function menu(): string
     {
         $toggle = "";
