@@ -1,7 +1,7 @@
 <div class="admin-page">
     <div class="bny-card">
         <div class="head">
-            <span><i class="bny-icon icon-user"></i> 角色管理</span>
+            <span><i class="bny-icon icon-menu"></i> 菜单管理</span>
         </div>
         <div class="body">
             <!-- 工具栏 -->
@@ -9,54 +9,66 @@
                 <!-- 左侧：全选 + 批量操作 -->
                 <div class="flex items-center flex-wrap" style="gap:12px">
                     <button class="bny-btn" btn-model="border" hx-ext="bny-attr"
-                        hx-target="all #table-role input[name='id[]']" attr-toggle="checked">
+                        hx-target="all #table-menu input[name='id[]']" attr-toggle="checked">
                         全选/反选
                     </button>
                     <button class="bny-btn" btn-model="border" btn-color="red" hx-ext="bny-confirm" hx-confirm="确认删除吗？"
-                        confirm-yes="bny.tableReload('#table-role')" hx-get="{:url('admin.role.delete')}"
-                        hx-include="#table-role input[name='id[]']:checked">
+                        confirm-yes="bny.tableReload('#table-menu')" hx-get="{:url('admin.menu.delete')}"
+                        hx-include="#table-menu input[name='id[]']:checked">
                         <i class="bny-icon icon-delete"></i> 批量删除
                     </button>
                     <button class="bny-btn" btn-model="border" btn-color="blue" hx-ext="bny-page"
-                        hx-get="{:url('admin.role.add')}" page-shade hx-swap="none">添加</button>
+                        hx-get="{:url('admin.menu.add')}" page-shade hx-swap="none">添加</button>
                 </div>
             </div>
 
             <!-- 表格 -->
-            <table hx-ext="bny-table" id="table-role" table-static table-server table-key="role"
-                hx-post="{:url('admin.role.view')}" hx-trigger="load" hx-target="find tbody" hx-swap="innerHTML">
+            <table hx-ext="bny-table" id="table-menu" table-static table-server table-key="menu"
+                hx-post="{:url('admin.menu.view')}" hx-trigger="load" hx-target="find tbody" hx-swap="innerHTML">
                 <thead>
                     <tr>
-                        <th cell-field="id" width="80" cell-template=".tpl-role-id">ID</th>
+                        <th cell-field="id" width="80" cell-template=".tpl-menu-id">ID</th>
                         <th cell-field="name">名称</th>
+                        <th cell-field="icon" cell-template=".tpl-menu-icon">图标</th>
+                        <th cell-field="status" cell-template=".tpl-menu-status">状态</th>
                         <th cell-field="create_time">创建时间</th>
                         <th cell-field="update_time">更新时间</th>
-                        <th cell-template=".tpl-role-operation">操作</th>
+                        <th cell-template=".tpl-menu-operation">操作</th>
                     </tr>
                 </thead>
                 <tbody></tbody>
             </table>
             <!-- ID模板 -->
-            <template class="tpl-role-id">
+            <template class="tpl-menu-id">
                 <label>
                     <input type="checkbox" name="id[]" class="bny-checkbox" value="{{data.id}}">
                 </label>
             </template>
+            <!-- 图标模板 -->
+            <template class="tpl-menu-icon">
+                <i class="bny-icon {{data.icon}}"></i>
+            </template>
+            <!-- 状态模板 -->
+            <template class="tpl-menu-status">
+                <span class="bny-tag" tag-color="{{data.status == 1 ? '' : 'red'}}">
+                    {{data.status == 1 ? '正常' : '禁用'}}
+                </span>
+            </template>
             <!-- 操作模板 -->
-            <template class="tpl-role-operation">
+            <template class="tpl-menu-operation">
                 <button class="bny-btn" btn-model="border" hx-ext="bny-dropdown">更多
                     <div class="bny-dropdown">
                         <div hx-ext="bny-menu" menu-mode="vertical" menu-color="white">
                             <div class="item">
-                                <div class="trigger" hx-get="{:url('admin.role.edit')}?id={{data.id}}" hx-ext="bny-page"
+                                <div class="trigger" hx-get="{:url('admin.menu.edit')}?id={{data.id}}" hx-ext="bny-page"
                                     title="编辑" page-shade hx-swap="none">
                                     <span>编辑</span>
                                 </div>
                             </div>
                             <div class="item">
                                 <div class="trigger" hx-ext="bny-confirm" hx-confirm="确认删除吗？"
-                                    hx-get="{:url('admin.role.delete')}?id[]={{data.id}}"
-                                    confirm-yes="bny.tableReload('#table-role')">
+                                    hx-get="{:url('admin.menu.delete')}?id[]={{data.id}}"
+                                    confirm-yes="bny.tableReload('#table-menu')">
                                     <span>删除</span>
                                 </div>
                             </div>

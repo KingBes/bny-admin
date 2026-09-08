@@ -1,7 +1,8 @@
 <!-- 步骤3：注册超级管理员 -->
 <div class="step-panel" id="step-3">
     <div class="form-result" id="admin-result">
-        <notempty name="error"><span class="badge" style="color:var(--red)">{$error}</span></notempty>
+        <notempty name="error"><span class="badge" style="color:var(--red)"
+>{$error}</span></notempty>
     </div>
     <form id="admin-form" hx-ext="bny-form" hx-post="{:url('install.index.register_admin')}" hx-swap="outerHTML"
         hx-target="#step-3">
@@ -12,6 +13,14 @@
                     value="{$form.username|default=''}" valid-rules="regexp:^[^\s]+$,min:2,max:20"
                     valid-msg-required="请填写管理员用户名" valid-msg-pattern="用户名不能包含空格" valid-msg-min="用户名长度不能少于 2 位"
                     valid-msg-max="用户名长度不能超过 20 位">
+            </div>
+        </div>
+        <div class="form-item">
+            <label>管理员昵称</label>
+            <div class="input-group">
+                <input class="bny-input" name="nickname" placeholder="请填写管理员昵称" required
+                    value="{$form.nickname|default=''}" valid-rules="max:50" valid-msg-required="请填写管理员昵称"
+                    valid-msg-max="昵称长度不能超过 50 位">
             </div>
         </div>
         <div class="form-item">
@@ -27,13 +36,15 @@
             <div class="input-group">
                 <input class="bny-input" name="confirm_password" type="password" required
                     value="{$form.confirm_password|default=''}" valid-rules="equals:password"
-                    valid-msg-required="请再次填写管理员密码" valid-msg-equals="两次输入的密码不一致" placeholder="请再次填写管理员密码">
+                    valid-msg-required="请再次填写管理员密码" valid-msg-equals="两次输入的密码不一致" placeholder="请再次填写管理员密码"
+>
             </div>
         </div>
         <div class="step-actions">
             <button type="button" class="bny-btn" btn-color="blue" hx-get="{:url('install.index.register_sql')}"
                 hx-swap="outerHTML" hx-target="#step-3">上一步</button>
-            <button type="submit" class="bny-btn" btn-color="green">注册并完成安装</button>
+            <button type="submit" class="bny-btn" btn-color="green"
+>注册并完成安装</button>
         </div>
     </form>
 </div>

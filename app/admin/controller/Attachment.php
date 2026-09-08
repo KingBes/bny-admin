@@ -9,7 +9,7 @@ use think\exception\FileException;
 use app\model\Config;
 use app\BaseController;
 
-#[Annotation(["title" => "附件管理", "icon" => "icon-attachment", "auth" => true])]
+#[Annotation(["title" => "附件管理", "auth" => true])]
 class Attachment extends BaseController
 {
     #[Annotation(["title" => "列表", "menu" => true, "auth" => true])]
@@ -44,7 +44,7 @@ class Attachment extends BaseController
         if (!isset($param["id"]) || $param["id"] <= 0) {
             return $this->error("请选择要删除的附件");
         }
-        $res = AttachmentModel::where("id", "in", $param["id"])->update(["is_delete" => 1]);
+        $res = AttachmentModel::where("id", "in", $param["id"])->update(["is_delete" => 1, "update_time" => time()]);
         if ($res) {
             return $this->success();
         }

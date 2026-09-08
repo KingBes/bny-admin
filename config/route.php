@@ -58,5 +58,7 @@ return [
         \app\middleware\CheckInstall::class,
         // 管理员权限守护：未登录时跳转 /login
         \app\middleware\Admin::class,
+        // 操作日记：记录后台写操作，须在权限校验之后
+        \app\middleware\AdminLog::class,
     ],
 ];

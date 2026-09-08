@@ -111,6 +111,7 @@ class Index extends BaseController
                 $this->installTables($cfg);
                 $this->createAdmin($cfg, $admin);
                 $this->createConfig($cfg);
+                $this->createMenu($cfg);
             } catch (\Throwable $e) {
                 // 任一环节失败：回显错误并停留在当前步骤（保留已填写的表单）
                 return $this->fetch('register_admin', [
@@ -417,10 +418,18 @@ class Index extends BaseController
         $username = trim((string)($admin['username'] ?? ''));
         $password = (string)($admin['password'] ?? '');
         $confirm  = (string)($admin['confirm_password'] ?? '');
+        // 昵称未填写时回退为用户名
+        $nickname = trim((string)($admin['nickname'] ?? ''));
 
         // 校验管理员信息
         if (!preg_match('/^[^\s]{2,20}$/', $username)) {
             throw new \Exception('管理员用户名长度为 2-20 位，且不能包含空格');
+        }
+        if ($nickname === '') {
+            $nickname = $username;
+        }
+        if (mb_strlen($nickname) > 50) {
+            throw new \Exception('管理员昵称长度不能超过 50 位');
         }
         if (strlen($password) < 6) {
             throw new \Exception('管理员密码长度不能少于 6 位');
@@ -440,12 +449,12 @@ class Index extends BaseController
         $row = $sel->fetch();
         if ($row) {
             $pdo->prepare("UPDATE `{$prefix}admin` SET `password` = ?, `nickname` = ?, `status` = 1, `update_time` = ? WHERE `id` = ?")
-                ->execute([$hash, $username, $time, $row['id']]);
+                ->execute([$hash, $nickname, $time, $row['id']]);
         } else {
             $stmt = $pdo->prepare(
                 "INSERT INTO `{$prefix}admin` (`username`,`password`,`nickname`,`rid`,`status`,`create_time`,`update_time`) VALUES (?,?,?,?,?,?,?)"
             );
-            $stmt->execute([$username, $hash, $username, 0, 1, $time, $time]);
+            $stmt->execute([$username, $hash, $nickname, 0, 1, $time, $time]);
         }
 
         // 最后一步：写入安装锁
@@ -467,6 +476,31 @@ class Index extends BaseController
         foreach ($data as $item) {
             $pdo->prepare("INSERT INTO `{$cfg['prefix']}config` (`key`,`value`,`group`,`create_time`,`update_time`) VALUES (?,?,?,?,?)")
                 ->execute([$item['key'], $item['value'], 'base', time(), time()]);
+        }
+    }
+
+    /**
+     * 创建菜单
+     *
+     * @return void
+     */
+    private function createMenu(array $cfg): void
+    {
+        $pdo = $this->pdo($cfg);
+        $data = [
+            ["id" => 1, "pid" => 0, "name" => "系统设置", "icon" => "icon-setting", "route" => "0", "note" => "系统设置"],
+            ["id" => 2, "pid" => 1, "name" => "基础设置", "icon" => "", "route" => "admin.system.base", "note" => "基础设置"],
+            ["id" => 3, "pid" => 1, "name" => "附件管理", "icon" => "", "route" => "admin.attachment.view", "note" => "附件管理"],
+            ["id" => 4, "pid" => 1, "name" => "菜单管理", "icon" => "", "route" => "admin.menu.view", "note" => "菜单管理"],
+            ["id" => 5, "pid" => 0, "name" => "系统管理", "icon" => "icon-crown", "route" => "0", "note" => "系统管理"],
+            ["id" => 6, "pid" => 5, "name" => "管理员", "icon" => "", "route" => "admin.admin.view", "note" => "管理员"],
+            ["id" => 7, "pid" => 5, "name" => "角色管理", "icon" => "", "route" => "admin.role.view", "note" => "角色管理"],
+            ["id" => 8, "pid" => 5, "name" => "操作日记", "icon" => "", "route" => "admin.log.view", "note" => "操作日记"],
+            ["id" => 9, "pid" => 0, "name" => "回收站", "icon" => "icon-delete", "route" => "admin.recycle.view", "note" => "回收站"],
+        ];
+        foreach ($data as $item) {
+            $pdo->prepare("INSERT INTO `{$cfg['prefix']}menu` (`id`,`pid`,`name`,`icon`,`route`,`note`) VALUES (?,?,?,?,?,?)")
+                ->execute([$item['id'], $item['pid'], $item['name'], $item['icon'], $item['route'], $item['note']]);
         }
     }
 }

@@ -1,0 +1,84 @@
+<div class="p-12">
+    <div class="bny-card">
+        <div class="head">
+            <span><i class="bny-icon icon-setting"></i> 编辑</span>
+        </div>
+        <div class="body">
+            <form id="mine-form" hx-ext="bny-form,bny-alert" hx-post="{:url('admin.menu.add')}" hx-swap="none"
+                alert-fn="if(data.code==0){bny.tableReload('#table-menu')}">
+                <div class="form-item">
+                    <label>等级选择</label>
+                    <div class="input-group">
+                        <ul hx-ext="bny-select" select-name="pid" select-required select-tree select-placeholder="选择等级"
+                            select-value="0">
+                            <li option-value="0" option-parent="0">顶级菜单</li>
+                            <volist name="list" id="v">
+                                <li option-value="{$v.id}" option-parent="{$v.pid}">{$v.name}</li>
+                            </volist>
+                        </ul>
+                    </div>
+                </div>
+                <div class="form-item">
+                    <label class="bny-label">图标代码</label>
+                    <div class="input-group">
+                        <input class="bny-input" type="text" name="icon" placeholder="请输入图标代码" />
+                    </div>
+                </div>
+                <div class="form-item">
+                    <label class="bny-label">名称</label>
+                    <div class="input-group">
+                        <input class="bny-input" type="text" name="name" placeholder="请输入名称" required
+                            valid-msg-required="请输入名称" />
+                    </div>
+                </div>
+                <div class="form-item">
+                    <label>页面选择</label>
+                    <div class="input-group">
+                        <ul hx-ext="bny-select" select-name="route" select-required select-tree
+                            select-placeholder="选择页面" select-value="0">
+                            <li option-value="0" option-parent="0">无页面</li>
+                            <each name="menus" key="k" value="v">
+                                <eq name="v.app" value="admin">
+                                    <li option-value="{$v.name}" option-parent="0" option-disabled>
+                                        {$v.title}</li>
+                                    <if condition="!empty($v.methods)">
+                                        <each name="v.methods" key="kk" value="vv">
+                                            <if condition="!empty($vv.menu) && $vv.menu==true">
+                                                <li option-value="admin.{$v.name}.{$vv.name}" option-parent="{$v.name}">
+                                                    {$vv.title}</li>
+                                            </if>
+                                        </each>
+                                    </if>
+                                </eq>
+                            </each>
+                        </ul>
+                    </div>
+                </div>
+                <div class="form-item">
+                    <label class="bny-label">状态</label>
+                    <div class="input-group">
+                        <label>
+                            <input type="radio" checked name="status" class="bny-radio" value="1">
+                            正常
+                        </label>
+                        <label>
+                            <input type="radio" name="status" class="bny-radio" value="0">
+                            隐藏
+                        </label>
+                    </div>
+                </div>
+                <div class="form-item">
+                    <label>备注</label>
+                    <div class="input-group">
+                        <textarea name="note" class="bny-textarea"></textarea>
+                    </div>
+                </div>
+                <div class="form-item">
+                    <div class="input-group">
+                        <button class="bny-btn" type="submit">提交</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

@@ -15,8 +15,9 @@
                 <span>仪表盘</span>
             </a>
         </li>
-        <li>
-            <div class="trigger" tip="系统设置">
+        {:menuTree($menu)}
+        <!-- <li>
+            <div class="trigger" tip="系统设置" admin-tab>
                 <i class="bny-icon icon-setting"></i>
                 <span>系统设置</span>
                 <i class="bny-icon icon-arrowright"></i>
@@ -32,6 +33,12 @@
                     <a class="trigger" href="{:url('admin.attachment.view')}" admin-tab
                         data-url="{:url('admin.attachment.view')}" data-title="附件管理">
                         <span>附件管理</span>
+                    </a>
+                </li>
+                <li>
+                    <a class="trigger" href="{:url('admin.menu.view')}" admin-tab data-url="{:url('admin.menu.view')}"
+                        data-title="菜单管理">
+                        <span>菜单管理</span>
                     </a>
                 </li>
             </ul>
@@ -56,6 +63,6 @@
                     </a>
                 </li>
             </ul>
-        </li>
+        </li> -->
     </ul>
 </div>

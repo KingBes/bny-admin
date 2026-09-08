@@ -1,0 +1,81 @@
+<div class="admin-page">
+    <div class="bny-card">
+        <div class="head">
+            <span><i class="bny-icon icon-delete"></i> 回收站</span>
+        </div>
+        <div class="body">
+            <!-- 工具栏 -->
+            <div class="flex-between flex-wrap" style="gap:12px;margin-bottom:12px">
+                <!-- 左侧：全选 + 批量操作 + 清空 -->
+                <div class="flex items-center flex-wrap" style="gap:12px">
+                    <button class="bny-btn" btn-model="border" hx-ext="bny-attr"
+                        hx-target="all #table-recycle input[name='id[]']" attr-toggle="checked">
+                        全选/反选
+                    </button>
+                    <button class="bny-btn" btn-model="border" btn-color="blue" hx-ext="bny-confirm"
+                        hx-confirm="确认恢复选中的数据吗？" confirm-yes="bny.tableReload('#table-recycle')"
+                        hx-get="{:url('admin.recycle.restore')}"
+                        hx-include="#table-recycle input[name='id[]']:checked">
+                        <i class="bny-icon icon-rollback"></i> 批量恢复
+                    </button>
+                    <button class="bny-btn" btn-model="border" btn-color="red" hx-ext="bny-confirm"
+                        hx-confirm="确认彻底删除吗？删除后无法恢复！" confirm-yes="bny.tableReload('#table-recycle')"
+                        hx-get="{:url('admin.recycle.delete')}"
+                        hx-include="#table-recycle input[name='id[]']:checked">
+                        <i class="bny-icon icon-delete"></i> 彻底删除
+                    </button>
+                    <button class="bny-btn" btn-model="border" btn-color="red" hx-ext="bny-confirm"
+                        hx-confirm="确认清空回收站吗？全部已删除数据将被永久删除！"
+                        confirm-yes="bny.tableReload('#table-recycle')" hx-get="{:url('admin.recycle.clear')}">
+                        <i class="bny-icon icon-delete-fill"></i> 清空回收站
+                    </button>
+                </div>
+                <!-- 右侧：搜索 -->
+                <div class="flex items-center flex-wrap" style="gap:12px">
+                    <input class="bny-input" type="text" name="name" placeholder="搜索名称"
+                        style="width:220px;max-width:100%" hx-ext="bny-table"
+                        hx-post="{:url('admin.recycle.view')}" hx-target="#table-recycle tbody"
+                        hx-swap="innerHTML" hx-trigger="input changed delay:400ms" hx-include="closest div" />
+                </div>
+            </div>
+
+            <!-- 表格 -->
+            <table hx-ext="bny-table" id="table-recycle" table-static table-server table-key="recycle"
+                hx-post="{:url('admin.recycle.view')}" hx-trigger="load" hx-target="find tbody" hx-swap="innerHTML">
+                <thead>
+                    <tr>
+                        <th cell-field="id" width="80" cell-template=".tpl-recycle-id">ID</th>
+                        <th cell-field="type_text" cell-template=".tpl-recycle-type">类型</th>
+                        <th cell-field="title">名称</th>
+                        <th cell-field="delete_time">删除时间</th>
+                        <th cell-template=".tpl-recycle-operation">操作</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+            <!-- ID模板 -->
+            <template class="tpl-recycle-id">
+                <label>
+                    <input type="checkbox" name="id[]" class="bny-checkbox" value="{{data.type}}:{{data.id}}">
+                </label>
+            </template>
+            <!-- 类型模板 -->
+            <template class="tpl-recycle-type">
+                <span class="bny-tag" tag-color="{{data.color}}">{{data.type_text}}</span>
+            </template>
+            <!-- 操作模板 -->
+            <template class="tpl-recycle-operation">
+                <button class="bny-btn" btn-model="border" btn-color="blue" hx-ext="bny-confirm"
+                    hx-confirm="确认恢复吗？" confirm-yes="bny.tableReload('#table-recycle')"
+                    hx-get="{:url('admin.recycle.restore')}?id[]={{data.type}}:{{data.id}}">
+                    <i class="bny-icon icon-rollback"></i> 恢复
+                </button>
+                <button class="bny-btn" btn-model="border" btn-color="red" hx-ext="bny-confirm"
+                    hx-confirm="确认彻底删除吗？删除后无法恢复！" confirm-yes="bny.tableReload('#table-recycle')"
+                    hx-get="{:url('admin.recycle.delete')}?id[]={{data.type}}:{{data.id}}">
+                    <i class="bny-icon icon-delete"></i> 删除
+                </button>
+            </template>
+        </div>
+    </div>
+</div>

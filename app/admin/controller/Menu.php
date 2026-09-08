@@ -3,34 +3,36 @@
 namespace app\admin\controller;
 
 use app\BaseController;
-use app\model\Role as RoleModel;
+use app\model\Menu as MenuModel;
+use think\response;
 use Kingbes\Annotation\Annotation;
 use Kingbes\Annotation\Data;
-use think\Response;
 use think\facade\Db;
 
-#[Annotation(["title" => "角色管理", "auth" => true])]
-class Role extends BaseController
+#[Annotation(["title" => "菜单管理", "auth" => true])]
+class Menu extends BaseController
 {
     #[Annotation(["title" => "列表", "menu" => true])]
-    public function view(): string|Response
+    public function view(): string|response
     {
         if (request()->isPost()) {
-            $tree = RoleModel::where("is_delete", 0)->select()->toArray();
-            return $this->success(["data" => buildTree($tree)]);
+            $list = MenuModel::where("is_delete", 0)->select()
+                ->toArray();
+            $tree = buildTree($list);
+            return $this->success(["data" => $tree]);
         }
         return $this->fetch();
     }
 
     #[Annotation(["title" => "添加", "menu" => true])]
-    public function add(): string|Response
+    public function add(): string|response
     {
-        $list = RoleModel::where("is_delete", 0)->select();
-        $this->assign("list", $list); // 获取所有角色
-        $this->assign("rule", Data::$data); // 获取所有权限
+        $list = MenuModel::where("is_delete", 0)->select();
+        $this->assign("list", $list);
+        $this->assign("menus", Data::$data);
         if (request()->isPost()) {
             $param = request()->param();
-            $res = RoleModel::create($param);
+            $res = MenuModel::create($param);
             if ($res) {
                 return $this->success();
             } else {
@@ -41,17 +43,17 @@ class Role extends BaseController
     }
 
     #[Annotation(["title" => "编辑", "menu" => false])]
-    public function edit(): string|Response
+    public function edit(): string|response
     {
         $id = request()->param("id");
-        $find = RoleModel::where("id", $id)->find();
-        $list = RoleModel::where("is_delete", 0)->where("id", "<>", $id)->select(); // 获取所有角色
-        $this->assign("list", $list); // 获取所有角色
-        $this->assign("rule", Data::$data); // 获取所有权限
-        $this->assign("find", $find); // 获取当前角色
+        $find  = MenuModel::where("id", $id)->find();
+        $list = MenuModel::where("is_delete", 0)->where("id", "<>", $id)->select();
+        $this->assign("list", $list);
+        $this->assign("menus", Data::$data);
+        $this->assign("find", $find);
         if (request()->isPost()) {
             $param = request()->param();
-            $res = RoleModel::update($param);
+            $res = MenuModel::update($param);
             if ($res) {
                 return $this->success();
             } else {
@@ -62,16 +64,16 @@ class Role extends BaseController
     }
 
     #[Annotation(["title" => "删除", "menu" => false])]
-    public function delete(): string|Response
+    public function delete(): response
     {
         $id = request()->param("id");
         if (count($id) == 0) {
-            return $this->error("请选择要删除的角色");
+            return $this->error("请选择要删除的菜单");
         }
         Db::startTrans();
         try {
-            RoleModel::where("id", "in", $id)->update(["is_delete" => 1, "update_time" => time()]); // 删除角色
-            RoleModel::where("pid", "in", $id)->update(["is_delete" => 1, "update_time" => time()]); // 删除角色权限
+            MenuModel::where("id", "in", $id)->update(["is_delete" => 1, "update_time" => time()]); // 删除菜单
+            MenuModel::where("pid", "in", $id)->update(["is_delete" => 1, "update_time" => time()]); // 删除菜单子项
             // 提交事务
             Db::commit();
             return $this->success();

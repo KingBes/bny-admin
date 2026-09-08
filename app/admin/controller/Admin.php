@@ -8,7 +8,7 @@ use Kingbes\Annotation\Annotation;
 use app\model\Admin as AdminModel;
 use app\model\Role;
 
-#[Annotation(["title" => "管理员", "icon" => "icon-user", "auth" => true])]
+#[Annotation(["title" => "管理员", "auth" => true])]
 class Admin extends BaseController
 {
     #[Annotation(["title" => "列表", "menu" => true, "auth" => true])]
@@ -91,7 +91,7 @@ class Admin extends BaseController
     public function delete(): Response
     {
         $id = request()->param("id");
-        $res = AdminModel::where("id", "in", $id)->update(["is_delete" => 1]);
+        $res = AdminModel::where("id", "in", $id)->update(["is_delete" => 1, "update_time" => time()]);
         if ($res) {
             return $this->success();
         }

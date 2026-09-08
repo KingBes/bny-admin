@@ -1,0 +1,83 @@
+<div class="admin-page">
+    <div class="bny-card">
+        <div class="head">
+            <span><i class="bny-icon icon-file-text"></i> 操作日记</span>
+        </div>
+        <div class="body">
+            <!-- 工具栏 -->
+            <div class="flex-between flex-wrap" style="gap:12px;margin-bottom:12px">
+                <!-- 左侧：全选 + 批量操作 + 清空 -->
+                <div class="flex items-center flex-wrap" style="gap:12px">
+                    <button class="bny-btn" btn-model="border" hx-ext="bny-attr"
+                        hx-target="all #table-log input[name='id[]']" attr-toggle="checked">
+                        全选/反选
+                    </button>
+                    <button class="bny-btn" btn-model="border" btn-color="red" hx-ext="bny-confirm" hx-confirm="确认删除吗？"
+                        confirm-yes="bny.tableReload('#table-log')" hx-get="{:url('admin.log.delete')}"
+                        hx-include="#table-log input[name='id[]']:checked">
+                        <i class="bny-icon icon-delete"></i> 批量删除
+                    </button>
+                    <button class="bny-btn" btn-model="border" btn-color="red" hx-ext="bny-confirm"
+                        hx-confirm="确认清空操作日记吗？全部记录将被永久删除！"
+                        confirm-yes="bny.tableReload('#table-log')" hx-get="{:url('admin.log.clear')}">
+                        <i class="bny-icon icon-delete-fill"></i> 清空日记
+                    </button>
+                </div>
+                <!-- 右侧：搜索 -->
+                <div class="flex items-center flex-wrap" style="gap:12px">
+                    <input class="bny-input" type="text" name="keyword" placeholder="搜索账号 / 操作 / IP"
+                        style="width:220px;max-width:100%" hx-ext="bny-table" hx-post="{:url('admin.log.view')}"
+                        hx-target="#table-log tbody" hx-swap="innerHTML" hx-trigger="input changed delay:400ms"
+                        hx-include="closest div" />
+                </div>
+            </div>
+
+            <!-- 表格 -->
+            <table hx-ext="bny-table" id="table-log" table-static table-server table-key="log"
+                hx-post="{:url('admin.log.view')}" hx-trigger="load" hx-target="find tbody" hx-swap="innerHTML"
+                table-list="10,50,100">
+                <thead>
+                    <tr>
+                        <th cell-field="id" width="80" cell-template=".tpl-log-id">ID</th>
+                        <th cell-field="admin">操作人</th>
+                        <th cell-field="title">操作</th>
+                        <th cell-field="method" width="90" cell-template=".tpl-log-method">方式</th>
+                        <th cell-field="ip" width="140">IP 地址</th>
+                        <th cell-field="result" width="90" cell-template=".tpl-log-result">结果</th>
+                        <th cell-field="create_time" width="180" cell-sort>时间</th>
+                        <th cell-template=".tpl-log-operation">操作</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+            <!-- ID模板 -->
+            <template class="tpl-log-id">
+                <label>
+                    <input type="checkbox" name="id[]" class="bny-checkbox" value="{{data.id}}">
+                </label>
+            </template>
+            <!-- 请求方式模板 -->
+            <template class="tpl-log-method">
+                <span class="bny-tag" tag-color="{{data.method == 'GET' ? 'green' : 'blue'}}">{{data.method}}</span>
+            </template>
+            <!-- 结果模板 -->
+            <template class="tpl-log-result">
+                <span class="bny-tag" tag-color="{{data.result == 1 ? 'green' : 'red'}}">
+                    {{data.result == 1 ? '成功' : '失败'}}
+                </span>
+            </template>
+            <!-- 操作模板 -->
+            <template class="tpl-log-operation">
+                <button class="bny-btn" btn-model="border" hx-ext="bny-page" title="详情" page-shade hx-swap="none"
+                    hx-get="{:url('admin.log.detail')}?id={{data.id}}">
+                    <i class="bny-icon icon-detail"></i> 详情
+                </button>
+                <button class="bny-btn" btn-model="border" btn-color="red" hx-ext="bny-confirm" hx-confirm="确认删除吗？"
+                    confirm-yes="bny.tableReload('#table-log')"
+                    hx-get="{:url('admin.log.delete')}?id[]={{data.id}}">
+                    <i class="bny-icon icon-delete"></i> 删除
+                </button>
+            </template>
+        </div>
+    </div>
+</div>

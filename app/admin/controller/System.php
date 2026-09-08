@@ -7,7 +7,7 @@ use Kingbes\Annotation\Annotation;
 use app\model\Config;
 use think\Response;
 
-#[Annotation(["title" => "系统管理", "icon" => "icon-setting", "auth" => true])]
+#[Annotation(["title" => "系统管理", "auth" => true])]
 class System extends BaseController
 {
     #[Annotation(["title" => "基础设置", "menu" => true])]

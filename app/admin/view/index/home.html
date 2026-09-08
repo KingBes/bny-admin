@@ -2,38 +2,36 @@
     <div class="bny-row" grid-gap="18">
 
         <!-- 欢迎卡片 -->
-        <div class="col-md12">
+        <div class="col-xs12">
             <div class="bny-card">
                 <div class="body">
                     <h2 class="title">{$welcome|default='欢迎回来'}</h2>
-                    <p class="content">现在是 <span id="admin-clock">--:--:--</span>，欢迎回到 KLLXS
-                        管理后台。</p>
-                    <p class="content">系统：webman + ThinkPHP 模板 · PHP {:phpversion()} · 前端
-                        bunny.ui</p>
+                    <p class="content">欢迎回到 Bny Admin 管理后台。</p>
+                    <p class="content">系统：后端 ThinkPHP · PHP {:phpversion()} · 前端 bunny.ui</p>
                 </div>
             </div>
         </div>
 
         <!-- 统计卡片 -->
-        <div class="col-md3 col-sm6">
+        <div class="col-xs6 col-md3">
             <div class="bny-card">
                 <div class="body">
-                    <div class="subtitle"><i class="bny-icon icon-edit"></i> 日记总数</div>
-                    <div class="title">{$diary_count|default='0'}</div>
-                    <div class="content">累计发布的日记篇数</div>
+                    <div class="subtitle"><i class="bny-icon icon-edit"></i> 文章总数</div>
+                    <div class="title">{$article_count|default='0'}</div>
+                    <div class="content">累计发布的文章篇数</div>
                 </div>
             </div>
         </div>
-        <div class="col-md3 col-sm6">
+        <div class="col-xs6 col-md3">
             <div class="bny-card">
                 <div class="body">
-                    <div class="subtitle"><i class="bny-icon icon-image"></i> 照片数量</div>
-                    <div class="title">{$photo_count|default='0'}</div>
-                    <div class="content">影集中收录的照片数</div>
+                    <div class="subtitle"><i class="bny-icon icon-image"></i> 附件数量</div>
+                    <div class="title">{$attachment_count|default='0'}</div>
+                    <div class="content">累计上传的附件总数</div>
                 </div>
             </div>
         </div>
-        <div class="col-md3 col-sm6">
+        <div class="col-xs6 col-md3">
             <div class="bny-card">
                 <div class="body">
                     <div class="subtitle"><i class="bny-icon icon-home"></i> 访问量</div>
@@ -42,7 +40,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md3 col-sm6">
+        <div class="col-xs6 col-md3">
             <div class="bny-card">
                 <div class="body">
                     <div class="subtitle"><i class="bny-icon icon-user"></i> 评论数</div>
@@ -53,7 +51,7 @@
         </div>
 
         <!-- 最近动态 -->
-        <div class="col-md12">
+        <div class="col-xs12">
             <div class="bny-card">
                 <div class="head"><span>最近动态</span></div>
                 <div class="body">

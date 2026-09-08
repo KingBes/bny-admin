@@ -1,0 +1,53 @@
+<div class="p-12">
+    <div class="bny-card">
+        <div class="head">
+            <span><i class="bny-icon icon-file-text"></i> 操作详情</span>
+        </div>
+        <div class="body">
+            <div class="form-item">
+                <label>操作人</label>
+                <div class="input-group">{$find.admin}</div>
+            </div>
+            <div class="form-item">
+                <label>操作内容</label>
+                <div class="input-group">{$find.title}</div>
+            </div>
+            <div class="form-item">
+                <label>请求地址</label>
+                <div class="input-group">{$find.method} {$find.url}</div>
+            </div>
+            <div class="form-item">
+                <label>IP 地址</label>
+                <div class="input-group">{$find.ip}</div>
+            </div>
+            <div class="form-item">
+                <label>操作结果</label>
+                <div class="input-group">
+                    <span class="bny-tag" tag-color="{$find.result == 1 ? 'green' : 'red'}">
+                        {$find.result == 1 ? '成功' : '失败'}
+                    </span>
+                    <span>{$find.msg}</span>
+                </div>
+            </div>
+            <div class="form-item">
+                <label>操作时间</label>
+                <div class="input-group">{$find.create_time}</div>
+            </div>
+            <div class="form-item">
+                <label>浏览器标识</label>
+                <div class="input-group" style="word-break:break-all">{$find.agent}</div>
+            </div>
+            <div class="form-item">
+                <label>请求参数</label>
+                <div class="input-group">
+                    <if condition="$param == ''">
+                        无
+                        <else/>
+                        <pre
+                            style="margin:0;padding:10px;width:100%;border-radius:6px;background-color:var(--white-shallow);font-size:12px;line-height:1.6;overflow:auto">{$param|raw}</pre>
+                    </if>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

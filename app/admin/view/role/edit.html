@@ -32,7 +32,7 @@
                             select-placeholder="选择权限" select-value="{$find.rule}">
                             <each name="rule" key="k" value="v">
                                 <eq name="v.app" value="admin">
-                                    <li option-value="{$v.name}" option-parent="0">{$v.title}</li>
+                                    <li option-value="{$v.name}" option-parent="0" {$v.auth==false?"option-disabled":""}>{$v.title}</li>
                                     <if condition="!empty($v.methods)">
                                         <each name="v.methods" key="kk" value="vv">
                                             <if condition="$vv.auth==true">
