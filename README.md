@@ -9,7 +9,7 @@
 
 - [Bunny-ui](https://github.com/KingBes/bunny.ui)
 
-![](https://github.com/KingBes/tp-worker/blob/master/001.png)
+![](./001.png)
 
 ## 环境要求
 
