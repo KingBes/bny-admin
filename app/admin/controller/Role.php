@@ -70,8 +70,8 @@ class Role extends BaseController
         }
         Db::startTrans();
         try {
-            RoleModel::where("id", "in", $id)->update(["is_delete" => 1, "update_time" => time()]); // 删除角色
-            RoleModel::where("pid", "in", $id)->update(["is_delete" => 1, "update_time" => time()]); // 删除角色权限
+            RoleModel::where("id", "in", $id)->update(["is_delete" => 1]); // 删除角色
+            RoleModel::where("pid", "in", $id)->update(["is_delete" => 1]); // 删除角色权限
             // 提交事务
             Db::commit();
             return $this->success();
