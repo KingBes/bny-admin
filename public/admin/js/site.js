@@ -170,7 +170,9 @@
         onEvent: function (name, evt) {
             if (name !== 'htmx:afterProcessNode') return true;
             var elt = evt.target;
-            if (!elt || !elt.matches || !elt.matches('[hx-ext~="bny-attach"]')) return true;
+            // 用 bny.hasExtName 判断 hx-ext：hx-ext 值是逗号分隔的（如 "bny-attach,bny-alert"），
+            // CSS [hx-ext~="bny-attach"] 按空白分词会匹配不到，必须用 hasExtName 按逗号分词。
+            if (!elt || !window.bny || !bny.hasExtName(elt, 'bny-attach')) return true;
             init(elt);
             return true; // 不阻断其它扩展对该事件的处理
         },
