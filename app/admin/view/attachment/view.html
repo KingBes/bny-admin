@@ -24,9 +24,9 @@
                         style="width:220px;max-width:100%" hx-ext="bny-table" hx-post="{:url('admin.attachment.view')}"
                         hx-target="#table-attachment tbody" hx-swap="innerHTML" hx-trigger="input changed delay:400ms"
                         hx-include="closest div" />
-                    <button class="bny-btn" hx-ext="bny-upload,bny-alert" btn-model="border"
+                    <button class="bny-btn" hx-ext="bny-upload" btn-model="border"
                         hx-post="{:url('admin.attachment.upload')}"
-                        alert-fn="if(data.code==0){bny.tableReload('#table-attachment')}">
+                        hx-on::after-request="try{var d=JSON.parse(event.detail.xhr.responseText);if(d&&d.code===0){bny.tableReload('#table-attachment')}}catch(e){}">
                         <i class="bny-icon icon-upload"></i> 上传附件
                     </button>
                 </div>
